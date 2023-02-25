@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateProfessionDto } from './dto/create-profession.dto';
 import { UpdateProfessionDto } from './dto/update-profession.dto';
 import { ProfessionEntity } from './entities/profession.entity';
@@ -24,15 +24,13 @@ export class ProfessionService {
       },
     });
 
-    if (!model) return null;
+    if (!model) throw new NotFoundException();
 
     return model;
   }
 
   async update(id: number, updateProfessionDto: UpdateProfessionDto) {
     const model = await this.findOne(id);
-
-    if (!model) return null;
 
     await model.update({
       ...updateProfessionDto,
@@ -43,8 +41,6 @@ export class ProfessionService {
 
   async remove(id: number) {
     const model = await this.findOne(id);
-
-    if (!model) return null;
 
     await model.destroy();
 

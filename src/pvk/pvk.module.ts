@@ -8,5 +8,6 @@ import { PvkEntity } from './entities/pvk.entity';
   imports: [SequelizeModule.forFeature([PvkEntity])],
   controllers: [PvkController],
   providers: [PvkService],
+  exports: [PvkService],
 })
 export class PvkModule {}

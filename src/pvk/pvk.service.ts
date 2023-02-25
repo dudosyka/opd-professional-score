@@ -11,6 +11,14 @@ export class PvkService {
     return await PvkEntity.findAll();
   }
 
+  async findAllByIds(ids: number[]): Promise<PvkEntity[]> {
+    return await PvkEntity.findAll({
+      where: {
+        id: ids,
+      },
+    });
+  }
+
   async findOne(id: number): Promise<PvkEntity> {
     return await PvkEntity.findOne({
       where: {

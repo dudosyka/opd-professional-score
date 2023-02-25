@@ -8,5 +8,6 @@ import { ProfessionEntity } from './entities/profession.entity';
   imports: [SequelizeModule.forFeature([ProfessionEntity])],
   controllers: [ProfessionController],
   providers: [ProfessionService],
+  exports: [ProfessionService],
 })
 export class ProfessionModule {}

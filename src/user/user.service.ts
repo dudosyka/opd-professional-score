@@ -1,4 +1,10 @@
-import { Inject, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserEntity } from './entities/user.entity';
@@ -15,6 +21,15 @@ export class UserService {
     const { password, ...user } = createUserDto;
     const hash = await this.bcryptUtil.hash(password);
 
+    const checkExists = await UserEntity.findOne({
+      where: {
+        login: user.login,
+      },
+    });
+
+    if (checkExists)
+      throw new HttpException('Double record', HttpStatus.CONFLICT);
+
     return await UserEntity.create({
       ...user,
       hash,
@@ -23,6 +38,7 @@ export class UserService {
 
   async findAll(): Promise<UserEntity[]> {
     return await UserEntity.findAll({
+      attributes: ['id', 'name', 'login', 'role'],
       where: {
         role: 1,
       },
@@ -31,22 +47,20 @@ export class UserService {
 
   async findOne(id: number): Promise<UserEntity> {
     const model = await UserEntity.findOne({
-      attributes: ['name', 'login'],
+      attributes: ['name', 'login', 'role'],
       where: {
         id,
         role: 1,
       },
     });
 
-    if (!model) return null;
+    if (!model) throw new NotFoundException();
 
     return model;
   }
 
   async update(id: number, updateUserDto: UpdateUserDto): Promise<UserEntity> {
     const model = await this.findOne(id);
-
-    if (!model) return null;
 
     const { password, ...data } = updateUserDto;
 
@@ -62,8 +76,6 @@ export class UserService {
 
   async remove(id: number) {
     const model = await this.findOne(id);
-
-    if (!model) return null;
 
     await model.destroy();
 
@@ -90,5 +102,9 @@ export class UserService {
 
   auth(user: UserEntity) {
     return this.jwtUtil.sign(user);
+  }
+
+  hashStr(str: string) {
+    return Promise.resolve(this.bcryptUtil.hash(str));
   }
 }

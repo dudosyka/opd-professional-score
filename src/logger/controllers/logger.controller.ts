@@ -7,12 +7,16 @@ import {
 } from '@nestjs/common';
 import { LoggerProvider } from '../providers/logger.provider';
 import { ErrorOutputDto } from '../dtos/error.output.dto';
+import { ApiForbiddenResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
 @Controller('logger')
+@ApiTags('Logger')
+@ApiForbiddenResponse({ description: 'Unauthorized Request' })
 export class LoggerController {
   constructor(@Inject(LoggerProvider) private loggerProvider: LoggerProvider) {}
 
   @Post()
+  @ApiOkResponse({ description: 'The resource was returned successfully' })
   public async getAll(
     @Body('passphrase') passphrase: string,
   ): Promise<ErrorOutputDto[]> | never {

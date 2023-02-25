@@ -1,23 +1,7 @@
 import { IsNumber, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
-
-export class AssessmentPvkList {
-  @IsNumber(
-    {},
-    {
-      message: 'pvk_id must be numeric',
-    },
-  )
-  pvk_id: number;
-
-  @IsNumber(
-    {},
-    {
-      message: 'grade is must be numeric',
-    },
-  )
-  grade: number;
-}
+import { ApiProperty } from '@nestjs/swagger';
+import { PvkAssessmentDto } from './pvk-assessment.dto';
 
 export class CreateAssessmentDto {
   @IsNumber(
@@ -26,6 +10,10 @@ export class CreateAssessmentDto {
       message: 'user_id must be numeric',
     },
   )
+  @ApiProperty({
+    type: Number,
+    description: 'expert-assesser entity id',
+  })
   user_id: number;
 
   @IsNumber(
@@ -34,12 +22,21 @@ export class CreateAssessmentDto {
       message: 'profession_id must be numeric',
     },
   )
+  @ApiProperty({
+    type: Number,
+    description: 'assessed profession entity id',
+  })
   profession_id: number;
 
   @ValidateNested({
     message: 'pvk must be array',
     each: true,
   })
-  @Type(() => AssessmentPvkList)
-  pvk: AssessmentPvkList[];
+  @ApiProperty({
+    isArray: true,
+    type: PvkAssessmentDto,
+    description: 'PVK list',
+  })
+  @Type(() => PvkAssessmentDto)
+  pvk: PvkAssessmentDto[];
 }

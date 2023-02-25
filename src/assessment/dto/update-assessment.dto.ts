@@ -1,4 +1,42 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateAssessmentDto } from './create-assessment.dto';
+import { IsNumber, ValidateNested } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
+import { PvkAssessmentDto } from './pvk-assessment.dto';
 
-export class UpdateAssessmentDto extends PartialType(CreateAssessmentDto) {}
+export class UpdateAssessmentDto {
+  @IsNumber(
+    {},
+    {
+      message: 'user_id must be numeric',
+    },
+  )
+  @ApiProperty({
+    type: Number,
+    description: 'expert-assesser entity id',
+  })
+  user_id: number;
+
+  @IsNumber(
+    {},
+    {
+      message: 'profession_id must be numeric',
+    },
+  )
+  @ApiProperty({
+    type: Number,
+    description: 'assessed profession entity id',
+  })
+  profession_id: number;
+
+  @ValidateNested({
+    message: 'pvk must be array',
+    each: true,
+  })
+  @ApiProperty({
+    isArray: true,
+    type: PvkAssessmentDto,
+    description: 'PVK list',
+  })
+  @Type(() => PvkAssessmentDto)
+  pvk: PvkAssessmentDto[];
+}

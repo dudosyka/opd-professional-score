@@ -8,6 +8,8 @@ import { JwtUtil } from '../utils/jwt.util';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtOptionsProvider } from './jwt-options.provider';
+import { LocalStrategy } from '../strategies/local.strategy';
+import { JwtStrategy } from '../strategies/jwt.strategy';
 
 @Module({
   imports: [
@@ -18,6 +20,7 @@ import { JwtOptionsProvider } from './jwt-options.provider';
     SequelizeModule.forFeature([UserEntity]),
   ],
   controllers: [UserController],
-  providers: [UserService, BcryptUtil, JwtUtil],
+  providers: [UserService, BcryptUtil, JwtUtil, LocalStrategy, JwtStrategy],
+  exports: [UserService, BcryptUtil, JwtUtil, LocalStrategy, JwtStrategy],
 })
 export class UserModule {}
