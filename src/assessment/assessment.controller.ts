@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { AssessmentService } from './assessment.service';
 import { CreateAssessmentDto } from './dto/create-assessment.dto';
@@ -39,7 +40,8 @@ export class AssessmentController {
     type: OutputAssessmentDto,
   })
   @ApiBadRequestResponse({ description: 'Validation error' })
-  create(@Body() createAssessmentDto: CreateAssessmentDto) {
+  create(@Body() createAssessmentDto: CreateAssessmentDto, @Req() req) {
+    createAssessmentDto.user_id = req.user.id;
     return this.assessmentService.create(createAssessmentDto);
   }
 
@@ -50,8 +52,7 @@ export class AssessmentController {
     isArray: true,
   })
   async findAll(): Promise<OutputAssessmentDto[]> {
-    const models = await this.assessmentService.findAll();
-    if (!(models instanceof Array<AssessmentEntity>)) return models;
+    return await this.assessmentService.findAll();
   }
 
   @Get(':id')
@@ -73,9 +74,11 @@ export class AssessmentController {
   @ApiNotFoundResponse({ description: 'Resource not found' })
   @ApiBadRequestResponse({ description: 'Validation error' })
   update(
+    @Req() req,
     @Param('id') id: string,
     @Body() updateAssessmentDto: UpdateAssessmentDto,
   ) {
+    updateAssessmentDto.user_id = req.user.id;
     return this.assessmentService.update(+id, updateAssessmentDto);
   }
 

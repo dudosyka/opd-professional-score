@@ -31,7 +31,7 @@ export class PvkController {
     type: OutputPvkDto,
   })
   findAll() {
-    return this.pvkService.findAll();
+    return this.pvkService.getAll();
   }
 
   @Get(':id')
@@ -41,7 +41,7 @@ export class PvkController {
   })
   @ApiNotFoundResponse({ description: 'Resource not found' })
   findOne(@Param('id') id: string) {
-    return this.pvkService.findOne(+id);
+    return this.pvkService.getOne(+id);
   }
 
   // @Patch(':id')

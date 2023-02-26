@@ -37,5 +37,5 @@ export class AssessmentEntity extends Model {
     'assessment_id',
     'id',
   )
-  pvk: PvkEntity;
+  pvk: PvkEntity[];
 }

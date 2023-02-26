@@ -1,16 +1,28 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CreateProfessionDto } from './dto/create-profession.dto';
 import { UpdateProfessionDto } from './dto/update-profession.dto';
 import { ProfessionEntity } from './entities/profession.entity';
+import { ModelNotFoundException } from '../exceptions/model-not-found.exception';
+import OutputProfessionDto from './dto/output-profession.dto';
 
 @Injectable()
 export class ProfessionService {
+  private modelOutputProcessor(model: ProfessionEntity): OutputProfessionDto {
+    return {
+      id: model.id,
+      name: model.name,
+      description: model.description,
+      author_id: model.author_id,
+    };
+  }
   async create(
     createProfessionDto: CreateProfessionDto,
-  ): Promise<ProfessionEntity> {
-    return await ProfessionEntity.create({
+  ): Promise<OutputProfessionDto> {
+    const model = await ProfessionEntity.create({
       ...createProfessionDto,
     });
+
+    return this.modelOutputProcessor(model);
   }
 
   async findAll(): Promise<ProfessionEntity[]> {
@@ -24,22 +36,37 @@ export class ProfessionService {
       },
     });
 
-    if (!model) throw new NotFoundException();
+    if (!model) throw new ModelNotFoundException(ProfessionEntity, id);
 
     return model;
   }
 
-  async update(id: number, updateProfessionDto: UpdateProfessionDto) {
+  async getOne(id: number): Promise<OutputProfessionDto> {
+    const model = await this.findOne(id);
+
+    return this.modelOutputProcessor(model);
+  }
+
+  async getAll(): Promise<OutputProfessionDto[]> {
+    const models = await this.findAll();
+
+    return models.map((el) => this.modelOutputProcessor(el));
+  }
+
+  async update(
+    id: number,
+    updateProfessionDto: UpdateProfessionDto,
+  ): Promise<OutputProfessionDto> {
     const model = await this.findOne(id);
 
     await model.update({
       ...updateProfessionDto,
     });
 
-    return model;
+    return this.modelOutputProcessor(model);
   }
 
-  async remove(id: number) {
+  async remove(id: number): Promise<boolean> {
     const model = await this.findOne(id);
 
     await model.destroy();

@@ -1,15 +1,10 @@
-import {
-  HttpException,
-  HttpStatus,
-  Inject,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserEntity } from './entities/user.entity';
 import { BcryptUtil } from '../utils/bcrypt.util';
 import { JwtUtil } from '../utils/jwt.util';
+import { ModelNotFoundException } from '../exceptions/model-not-found.exception';
 
 @Injectable()
 export class UserService {
@@ -17,22 +12,28 @@ export class UserService {
     @Inject(BcryptUtil) private bcryptUtil: BcryptUtil,
     @Inject(JwtUtil) private jwtUtil: JwtUtil,
   ) {}
-  async create(createUserDto: CreateUserDto): Promise<UserEntity> {
-    const { password, ...user } = createUserDto;
-    const hash = await this.bcryptUtil.hash(password);
 
+  async checkDoubleRecord(_arguments: Record<string, any>) {
     const checkExists = await UserEntity.findOne({
       where: {
-        login: user.login,
+        ..._arguments,
       },
     });
 
     if (checkExists)
       throw new HttpException('Double record', HttpStatus.CONFLICT);
+  }
+
+  async create(createUserDto: CreateUserDto): Promise<UserEntity> {
+    const { password, ...user } = createUserDto;
+    const hash = await this.bcryptUtil.hash(password);
+
+    await this.checkDoubleRecord({ login: createUserDto.login });
 
     return await UserEntity.create({
       ...user,
       hash,
+      role: 1,
     });
   }
 
@@ -47,14 +48,14 @@ export class UserService {
 
   async findOne(id: number): Promise<UserEntity> {
     const model = await UserEntity.findOne({
-      attributes: ['name', 'login', 'role'],
+      attributes: ['id', 'name', 'login', 'role'],
       where: {
         id,
         role: 1,
       },
     });
 
-    if (!model) throw new NotFoundException();
+    if (!model) throw new ModelNotFoundException(UserEntity, id);
 
     return model;
   }
@@ -63,6 +64,9 @@ export class UserService {
     const model = await this.findOne(id);
 
     const { password, ...data } = updateUserDto;
+
+    if (updateUserDto.login && model.login != updateUserDto.login)
+      await this.checkDoubleRecord({ login: updateUserDto.login });
 
     const hash = await this.bcryptUtil.hash(password);
 

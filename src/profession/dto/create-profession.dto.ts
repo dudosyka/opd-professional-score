@@ -19,4 +19,6 @@ export class CreateProfessionDto {
     description: 'Profession description',
   })
   description: string;
+
+  author_id: number;
 }

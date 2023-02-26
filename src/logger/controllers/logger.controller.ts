@@ -8,6 +8,7 @@ import {
 import { LoggerProvider } from '../providers/logger.provider';
 import { ErrorOutputDto } from '../dtos/error.output.dto';
 import { ApiForbiddenResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { GetterDto } from '../dtos/getter.dto';
 
 @Controller('logger')
 @ApiTags('Logger')
@@ -16,11 +17,15 @@ export class LoggerController {
   constructor(@Inject(LoggerProvider) private loggerProvider: LoggerProvider) {}
 
   @Post()
-  @ApiOkResponse({ description: 'The resource was returned successfully' })
+  @ApiOkResponse({
+    description: 'The resource was returned successfully',
+    type: ErrorOutputDto,
+    isArray: true,
+  })
   public async getAll(
-    @Body('passphrase') passphrase: string,
+    @Body() dto: GetterDto,
   ): Promise<ErrorOutputDto[]> | never {
-    if (passphrase == 'password')
+    if (dto.passphrase == 'password')
       return (await this.loggerProvider.getAll()).map((el) => {
         try {
           return {

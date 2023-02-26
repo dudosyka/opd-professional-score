@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { ProfessionService } from './profession.service';
 import { CreateProfessionDto } from './dto/create-profession.dto';
@@ -38,7 +39,8 @@ export class ProfessionController {
     type: OutputProfessionDto,
   })
   @ApiBadRequestResponse({ description: 'Validation error' })
-  create(@Body() createProfessionDto: CreateProfessionDto) {
+  create(@Req() req, @Body() createProfessionDto: CreateProfessionDto) {
+    createProfessionDto.author_id = req.user.id;
     return this.professionService.create(createProfessionDto);
   }
 
@@ -49,7 +51,7 @@ export class ProfessionController {
     type: OutputProfessionDto,
   })
   findAll() {
-    return this.professionService.findAll();
+    return this.professionService.getAll();
   }
 
   @Get(':id')
@@ -59,7 +61,7 @@ export class ProfessionController {
   })
   @ApiNotFoundResponse({ description: 'Resource not found' })
   findOne(@Param('id') id: string) {
-    return this.professionService.findOne(+id);
+    return this.professionService.getOne(+id);
   }
 
   @Patch(':id')

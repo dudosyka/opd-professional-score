@@ -4,18 +4,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { PvkAssessmentDto } from './pvk-assessment.dto';
 
 export class CreateAssessmentDto {
-  @IsNumber(
-    {},
-    {
-      message: 'user_id must be numeric',
-    },
-  )
-  @ApiProperty({
-    type: Number,
-    description: 'expert-assesser entity id',
-  })
   user_id: number;
-
   @IsNumber(
     {},
     {

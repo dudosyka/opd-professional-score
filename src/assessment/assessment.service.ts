@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { CreateAssessmentDto } from './dto/create-assessment.dto';
 import { UpdateAssessmentDto } from './dto/update-assessment.dto';
 import { UserService } from '../user/user.service';
@@ -7,6 +7,8 @@ import { ProfessionService } from '../profession/profession.service';
 import { AssessmentEntity } from './entities/assessment.entity';
 import { AssessmentPvkEntity } from './entities/assessment.pvk.entity';
 import { PvkEntity } from '../pvk/entities/pvk.entity';
+import { ModelNotFoundException } from '../exceptions/model-not-found.exception';
+import { OutputAssessmentDto } from './dto/output-assessment.dto';
 
 @Injectable()
 export class AssessmentService {
@@ -27,7 +29,7 @@ export class AssessmentService {
     );
 
     if (pvkModels.length < createAssessmentDto.pvk.length)
-      throw new NotFoundException();
+      throw new ModelNotFoundException(PvkEntity, null);
 
     const assessmentModel = await AssessmentEntity.create({
       profession_id: professionModel.id,
@@ -43,17 +45,29 @@ export class AssessmentService {
       }),
     );
 
+    return this.processUpdatedModelsToOutputDto(assessmentModel, pvkListModels);
+  }
+
+  private processUpdatedModelsToOutputDto(
+    model: AssessmentEntity,
+    pvkList: AssessmentPvkEntity[],
+  ) {
+    const { id, profession_id, user_id } = model;
+
     return {
-      assessment: assessmentModel,
-      pvk: pvkListModels,
+      assessment: { id, profession_id, user_id },
+      pvk: pvkList.map((el) => {
+        return {
+          pvk_id: el.pvk_id,
+          grade: el.grade,
+        };
+      }),
     };
   }
 
-  async findAll() {
-    const models = await AssessmentEntity.findAll({
-      include: [PvkEntity],
-    });
-
+  private processGotModelsToOutputDto(
+    models: AssessmentEntity[],
+  ): OutputAssessmentDto[] {
     return models.map((el) => {
       return {
         assessment: {
@@ -61,12 +75,23 @@ export class AssessmentService {
           user_id: el.id,
           profession_id: el.profession_id,
         },
-        pvk: { pvk_id: el.pvk.id, grade: el.pvk['PvkEntity'].grade },
+        pvk: el.pvk.map((pvk) => ({
+          pvk_id: pvk.id,
+          grade: pvk['AssessmentPvkEntity'].grade,
+        })),
       };
     });
   }
 
-  async findOne(id: number, needsModel = false) {
+  async findAll() {
+    const models = await AssessmentEntity.findAll({
+      include: [PvkEntity],
+    });
+
+    return this.processGotModelsToOutputDto(models);
+  }
+
+  async findOne<T>(id: number, needsModel = false): Promise<T | any> {
     const model = await AssessmentEntity.findOne({
       where: {
         id,
@@ -74,18 +99,11 @@ export class AssessmentService {
       include: [PvkEntity],
     });
 
-    if (!model) throw new NotFoundException();
+    if (!model) throw new ModelNotFoundException(AssessmentEntity, id);
 
     if (needsModel) return model;
 
-    return {
-      assessment: {
-        id: model.id,
-        user_id: model.id,
-        profession_id: model.profession_id,
-      },
-      pvk: { pvk_id: model.pvk.id, grade: model.pvk['PvkEntity'].grade },
-    };
+    return this.processGotModelsToOutputDto([model])[0];
   }
 
   async update(id: number, updateAssessmentDto: UpdateAssessmentDto) {
@@ -101,7 +119,7 @@ export class AssessmentService {
     );
 
     if (pvkModels.length < updateAssessmentDto.pvk.length)
-      throw new NotFoundException();
+      throw new ModelNotFoundException(PvkEntity, null);
 
     if (!(model instanceof AssessmentEntity)) return null;
 
@@ -125,16 +143,20 @@ export class AssessmentService {
       }),
     );
 
-    return {
-      assessment: model,
-      pvk: pvkListModels,
-    };
+    return this.processUpdatedModelsToOutputDto(model, pvkListModels);
   }
 
   async remove(id: number) {
-    const model = await this.findOne(id, true);
+    const model: AssessmentEntity = await this.findOne<AssessmentEntity>(
+      id,
+      true,
+    );
 
-    if (!(model instanceof AssessmentEntity)) return null;
+    await AssessmentPvkEntity.destroy({
+      where: {
+        assessment_id: id,
+      },
+    });
 
     await model.destroy();
 

@@ -33,5 +33,5 @@ export class OutputAssessmentDto {
     isArray: true,
     description: 'Profession entity id',
   })
-  pvk: PvkAssessmentDto;
+  pvk: PvkAssessmentDto[];
 }

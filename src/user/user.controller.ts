@@ -79,8 +79,7 @@ export class UserController {
     status: HttpStatus.CONFLICT,
   })
   create(@Body() createUserDto: CreateUserDto) {
-    console.log(createUserDto);
-    // return this.userService.create(createUserDto);
+    return this.userService.create(createUserDto);
   }
 
   @UseGuards(JwtAuthGuard, AdminGuard)

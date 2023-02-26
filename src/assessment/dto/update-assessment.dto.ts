@@ -4,18 +4,7 @@ import { Type } from 'class-transformer';
 import { PvkAssessmentDto } from './pvk-assessment.dto';
 
 export class UpdateAssessmentDto {
-  @IsNumber(
-    {},
-    {
-      message: 'user_id must be numeric',
-    },
-  )
-  @ApiProperty({
-    type: Number,
-    description: 'expert-assesser entity id',
-  })
   user_id: number;
-
   @IsNumber(
     {},
     {

@@ -18,4 +18,10 @@ export default class OutputProfessionDto {
     description: 'Profession description',
   })
   description: string;
+
+  @ApiProperty({
+    type: Number,
+    description: 'Profession creator id',
+  })
+  author_id: number;
 }
