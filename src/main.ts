@@ -8,7 +8,7 @@ async function bootstrap() {
   console.log('rt', process.env);
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe());
-
+  app.enableCors();
   const config = new DocumentBuilder()
     .setTitle('Profession score API')
     .setDescription('API for profession scoring system.')
