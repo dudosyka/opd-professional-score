@@ -22,9 +22,22 @@ export class AssessmentService {
       createAssessmentDto.user_id,
       [1, 2],
     );
+
     const professionModel = await this.professionService.findOne(
       createAssessmentDto.profession_id,
     );
+
+    const checkExists = await AssessmentEntity.findOne({
+      where: {
+        user_id: expertModel.id,
+        profession_id: professionModel.id,
+      },
+    });
+
+    if (checkExists) {
+      await this.remove(checkExists.id);
+    }
+
     const pvkModels = await this.pvkService.findAllByIds(
       createAssessmentDto.pvk.map((el) => el.pvk_id),
     );
