@@ -66,6 +66,18 @@ export class AssessmentController {
     if (!(model instanceof AssessmentEntity)) return model;
   }
 
+  @Get('/profession/:prof_id')
+  @ApiOkResponse({
+    description: 'The resource was returned successfully',
+    type: OutputAssessmentDto,
+  })
+  @ApiNotFoundResponse({ description: 'Resource not found' })
+  async findByProfession(
+    @Param('prof_id') prof_id: string,
+  ): Promise<OutputAssessmentDto[]> {
+    return await this.assessmentService.findByProfession(+prof_id);
+  }
+
   @Patch(':id')
   @ApiOkResponse({
     description: 'The resource was updated successfully',

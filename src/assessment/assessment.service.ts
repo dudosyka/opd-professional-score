@@ -162,4 +162,16 @@ export class AssessmentService {
 
     return true;
   }
+
+  async findByProfession(
+    profession_id: number,
+  ): Promise<OutputAssessmentDto[]> {
+    return this.processGotModelsToOutputDto(
+      await AssessmentEntity.findAll({
+        where: {
+          profession_id,
+        },
+      }),
+    );
+  }
 }
