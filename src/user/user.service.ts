@@ -46,12 +46,12 @@ export class UserService {
     });
   }
 
-  async findOne(id: number): Promise<UserEntity> {
+  async findOne(id: number, role = [1]): Promise<UserEntity> {
     const model = await UserEntity.findOne({
       attributes: ['id', 'name', 'login', 'role'],
       where: {
         id,
-        role: 1,
+        role,
       },
     });
 

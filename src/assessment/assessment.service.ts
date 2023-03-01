@@ -20,6 +20,7 @@ export class AssessmentService {
   async create(createAssessmentDto: CreateAssessmentDto) {
     const expertModel = await this.userService.findOne(
       createAssessmentDto.user_id,
+      [1, 2],
     );
     const professionModel = await this.professionService.findOne(
       createAssessmentDto.profession_id,
