@@ -121,7 +121,7 @@ export class AssessmentService {
         return {
           assessment: {
             id: el.id,
-            user_id: el.id,
+            user_id: el.user_id,
             profession_id: el.profession_id,
           },
           pvk: pvkList.map((pvk) => ({
