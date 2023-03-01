@@ -51,7 +51,6 @@ export class UserService {
       attributes: ['id', 'name', 'login', 'role'],
       where: {
         id,
-        role,
       },
     });
 
