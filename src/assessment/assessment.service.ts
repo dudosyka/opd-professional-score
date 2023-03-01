@@ -92,6 +92,7 @@ export class AssessmentService {
         },
         pvk: el.pvk.map((pvk) => ({
           pvk_id: pvk.id,
+          name: pvk.name,
           grade: pvk['AssessmentPvkEntity'].grade,
         })),
       };
@@ -126,6 +127,7 @@ export class AssessmentService {
           },
           pvk: pvkList.map((pvk) => ({
             pvk_id: pvk.id,
+            name: pvk.name,
             grade: pvk['AssessmentPvkEntity'].grade,
           })),
         };
@@ -227,6 +229,8 @@ export class AssessmentService {
         ).map((el) => ({
           ...el.pvk,
           AssessmentPvkEntity: {
+            pvk_id: el.pvk.id,
+            name: el.pvk.name,
             grade: el.grade,
           },
         }));
@@ -238,6 +242,7 @@ export class AssessmentService {
           },
           pvk: pvkList.map((pvk) => ({
             pvk_id: pvk.id,
+            name: pvk.name,
             grade: pvk['AssessmentPvkEntity'].grade,
           })),
         };

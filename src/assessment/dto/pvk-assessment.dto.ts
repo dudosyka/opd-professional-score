@@ -25,4 +25,6 @@ export class PvkAssessmentDto {
     description: 'PVK position in assessment list',
   })
   grade: number;
+
+  name: string;
 }
