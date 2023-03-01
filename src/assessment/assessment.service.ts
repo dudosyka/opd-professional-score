@@ -83,6 +83,7 @@ export class AssessmentService {
     models: AssessmentEntity[],
   ): OutputAssessmentDto[] {
     return models.map((el) => {
+      console.log(el);
       return {
         assessment: {
           id: el.id,
@@ -102,7 +103,34 @@ export class AssessmentService {
       include: [PvkEntity],
     });
 
-    return this.processGotModelsToOutputDto(models);
+    return await Promise.all(
+      models.map(async (el) => {
+        const pvkList = (
+          await AssessmentPvkEntity.findAll({
+            where: {
+              assessment_id: el.id,
+            },
+            include: [PvkEntity],
+          })
+        ).map((el) => ({
+          ...el.pvk,
+          AssessmentPvkEntity: {
+            grade: el.grade,
+          },
+        }));
+        return {
+          assessment: {
+            id: el.id,
+            user_id: el.id,
+            profession_id: el.profession_id,
+          },
+          pvk: pvkList.map((pvk) => ({
+            pvk_id: pvk.id,
+            grade: pvk['AssessmentPvkEntity'].grade,
+          })),
+        };
+      }),
+    );
   }
 
   async findOne<T>(id: number, needsModel = false): Promise<T | any> {
@@ -180,11 +208,39 @@ export class AssessmentService {
   async findByProfession(
     profession_id: number,
   ): Promise<OutputAssessmentDto[]> {
-    return this.processGotModelsToOutputDto(
-      await AssessmentEntity.findAll({
-        where: {
-          profession_id,
-        },
+    const models = await AssessmentEntity.findAll({
+      where: {
+        profession_id,
+      },
+      include: [PvkEntity],
+    });
+
+    return await Promise.all(
+      models.map(async (el) => {
+        const pvkList = (
+          await AssessmentPvkEntity.findAll({
+            where: {
+              assessment_id: el.id,
+            },
+            include: [PvkEntity],
+          })
+        ).map((el) => ({
+          ...el.pvk,
+          AssessmentPvkEntity: {
+            grade: el.grade,
+          },
+        }));
+        return {
+          assessment: {
+            id: el.id,
+            user_id: el.id,
+            profession_id: el.profession_id,
+          },
+          pvk: pvkList.map((pvk) => ({
+            pvk_id: pvk.id,
+            grade: pvk['AssessmentPvkEntity'].grade,
+          })),
+        };
       }),
     );
   }
