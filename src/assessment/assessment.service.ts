@@ -241,8 +241,8 @@ export class AssessmentService {
             profession_id: el.profession_id,
           },
           pvk: pvkList.map((pvk) => ({
-            pvk_id: pvk.id,
-            name: pvk.name,
+            pvk_id: pvk['AssessmentPvkEntity'].pvk_id,
+            name: pvk['AssessmentPvkEntity'].name,
             grade: pvk['AssessmentPvkEntity'].grade,
           })),
         };
