@@ -76,7 +76,8 @@ export class UserTestAvailableController {
   })
   @ApiNotFoundResponse({ description: 'Resource not found' })
   findByCurrent(@Req() req) {
-    return this.userTestAvailableService.findByUser(req.user.sub);
+    console.log(req.user);
+    return this.userTestAvailableService.findByUser(req.user.id);
   }
 
   @Get(':id')

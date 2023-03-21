@@ -81,7 +81,7 @@ export class UserTestController {
   })
   @ApiNotFoundResponse({ description: 'Resource not found' })
   findByCurUser(@Req() req) {
-    return this.userTestService.findByUser(req.user.sub);
+    return this.userTestService.findByUser(req.user.id);
   }
 
   @Get('/result/:userId/:testId')
@@ -104,6 +104,6 @@ export class UserTestController {
   })
   @ApiNotFoundResponse({ description: 'Resource not found' })
   findByCurUserTest(@Req() req, @Param('testId') testId: number) {
-    return this.userTestService.findByUserTest(req.user.sub, testId);
+    return this.userTestService.findByUserTest(req.user.id, testId);
   }
 }
