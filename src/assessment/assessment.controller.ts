@@ -36,7 +36,7 @@ export class AssessmentController {
 
   @Post()
   @ApiCreatedResponse({
-    description: 'Created Succesfully',
+    description: 'Created Successfully',
     type: OutputAssessmentDto,
   })
   @ApiBadRequestResponse({ description: 'Validation error' })

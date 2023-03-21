@@ -35,7 +35,7 @@ export class ProfessionController {
 
   @Post()
   @ApiCreatedResponse({
-    description: 'Created Succesfully',
+    description: 'Created Successfully',
     type: OutputProfessionDto,
   })
   @ApiBadRequestResponse({ description: 'Validation error' })

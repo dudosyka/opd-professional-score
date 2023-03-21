@@ -15,6 +15,9 @@ import { ValidationExceptionFilter } from './filters/validation-exception.filter
 import { DatabaseErrorFilter } from './filters/database-error.filter';
 import { LoggerModule } from './logger/logger.module';
 import { HttpExceptionFilter } from './filters/http-exception.filter';
+import { UserTestModule } from './user-test/user-test.module';
+import { TestModule } from './test/test.module';
+import { UserTestAvailableModule } from './user-test-available/user-test-available.module';
 
 @Module({
   imports: [
@@ -34,6 +37,9 @@ import { HttpExceptionFilter } from './filters/http-exception.filter';
     ProfessionModule,
     PvkModule,
     AssessmentModule,
+    UserTestModule,
+    TestModule,
+    UserTestAvailableModule,
   ],
   controllers: [AppController],
   providers: [

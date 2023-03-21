@@ -17,6 +17,12 @@ export class UserEntity extends Model {
   name: string;
 
   @Column
+  sex: number;
+
+  @Column
+  birthday: number;
+
+  @Column
   login: string;
 
   @Column

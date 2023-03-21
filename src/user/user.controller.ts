@@ -70,7 +70,7 @@ export class UserController {
   @ApiTags('User CRUD')
   @Post()
   @ApiCreatedResponse({
-    description: 'Created Succesfully',
+    description: 'Created Successfully',
     type: OutputUserDto,
   })
   @ApiBadRequestResponse({ description: 'Validation error' })
