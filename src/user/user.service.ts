@@ -110,4 +110,17 @@ export class UserService {
   hashStr(str: string) {
     return Promise.resolve(this.bcryptUtil.hash(str));
   }
+
+  async createSimpleUser(userDto: CreateUserDto) {
+    const { password, ...user } = userDto;
+    const hash = await this.bcryptUtil.hash(password);
+
+    await this.checkDoubleRecord({ login: user.login });
+
+    return await UserEntity.create({
+      ...user,
+      hash,
+      role: 0,
+    });
+  }
 }

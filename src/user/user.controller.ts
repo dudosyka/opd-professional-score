@@ -47,6 +47,15 @@ export class UserController {
     return { token: this.userService.auth(req.user) };
   }
 
+  @Post('sign-up')
+  @ApiTags('Authorization')
+  @ApiCreatedResponse({
+    description: 'The registration was successfully proceed',
+    type: Boolean,
+  })
+  signUp(@Body() userDto: CreateUserDto) {
+    return this.userService.createSimpleUser(userDto);
+  }
   @Get('hash/:str')
   @ApiTags('Authorization')
   async hashStr(@Param('str') str: string) {
