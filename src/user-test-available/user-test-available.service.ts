@@ -5,6 +5,8 @@ import { CreateUserTestAvailableDto } from './dto/create-user-test-available.dto
 import { UserTestAvailableEntity } from './entities/user-test-available.entity';
 import { OutputUserTestAvailableDto } from './dto/output-user-test-available.dto';
 import { ModelNotFoundException } from '../exceptions/model-not-found.exception';
+import { UserEntity } from '../user/entities/user.entity';
+import { TestEntity } from '../test/entities/test.entity';
 
 @Injectable()
 export class UserTestAvailableService {
@@ -39,7 +41,9 @@ export class UserTestAvailableService {
   }
 
   findAll(): Promise<OutputUserTestAvailableDto[]> {
-    return UserTestAvailableEntity.findAll();
+    return UserTestAvailableEntity.findAll({
+      include: [UserEntity, TestEntity],
+    });
   }
 
   findByUser(userId: number): Promise<OutputUserTestAvailableDto[]> {
@@ -47,7 +51,19 @@ export class UserTestAvailableService {
       where: {
         user_id: userId,
       },
-    });
+      include: [TestEntity, UserEntity],
+    }).then((res) =>
+      res.map((el) => {
+        return {
+          id: el.id,
+          relative_id: el.relative_id,
+          user_id: el.user_id,
+          user: el.user,
+          test_id: el.test_id,
+          test: el.test,
+        };
+      }),
+    );
   }
 
   findOne(id: number): Promise<OutputUserTestAvailableDto> {
@@ -55,6 +71,7 @@ export class UserTestAvailableService {
       where: {
         id,
       },
+      include: [UserEntity, TestEntity],
     });
 
     if (!model) throw new ModelNotFoundException(UserTestAvailableEntity, id);

@@ -4,6 +4,8 @@ import { UserTestEntity } from './entities/user-test.entity';
 import { UserTestAvailableService } from '../user-test-available/user-test-available.service';
 import { ModelNotFoundException } from '../exceptions/model-not-found.exception';
 import { OutputUserTestDto } from './dto/output-user-test.dto';
+import { UserEntity } from '../user/entities/user.entity';
+import { TestEntity } from '../test/entities/test.entity';
 
 @Injectable()
 export class UserTestService {
@@ -28,7 +30,9 @@ export class UserTestService {
   }
 
   findAll(): Promise<OutputUserTestDto[]> {
-    return UserTestEntity.findAll();
+    return UserTestEntity.findAll({
+      include: [UserEntity, TestEntity],
+    });
   }
 
   findByUser(userId: number): Promise<OutputUserTestDto[]> {
@@ -36,6 +40,7 @@ export class UserTestService {
       where: {
         user_id: userId,
       },
+      include: [UserEntity, TestEntity],
     });
   }
 
@@ -45,6 +50,7 @@ export class UserTestService {
         user_id: userId,
         test_id: testId,
       },
+      include: [UserEntity, TestEntity],
     });
   }
 
@@ -53,6 +59,7 @@ export class UserTestService {
       where: {
         id,
       },
+      include: [UserEntity, TestEntity],
     });
 
     if (!model) throw new ModelNotFoundException(UserTestEntity, id);
