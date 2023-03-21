@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { UserTestAvailableService } from './user-test-available.service';
 import { UpdateUserTestAvailableDto } from './dto/update-user-test-available.dto';
@@ -20,11 +21,14 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { OutputUserTestAvailableDto } from './dto/output-user-test-available.dto';
+import { JwtAuthGuard } from '../guards/jwt-auth.guard';
+import { AdminGuard } from '../guards/admin.guard';
 
 @Controller('user-test-available')
 @ApiTags('User available tests')
 @ApiForbiddenResponse({ description: 'Unauthorized Request' })
 @ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 export class UserTestAvailableController {
   constructor(
     private readonly userTestAvailableService: UserTestAvailableService,
@@ -35,6 +39,7 @@ export class UserTestAvailableController {
     description: 'Created Successfully',
     type: OutputUserTestAvailableDto,
   })
+  @UseGuards(AdminGuard)
   @ApiBadRequestResponse({ description: 'Validation error' })
   create(@Body() createUserTestAvailableDto: CreateUserTestAvailableDto) {
     return this.userTestAvailableService.create(createUserTestAvailableDto);
@@ -46,6 +51,7 @@ export class UserTestAvailableController {
     isArray: true,
     type: OutputUserTestAvailableDto,
   })
+  @UseGuards(AdminGuard)
   findAll() {
     return this.userTestAvailableService.findAll();
   }
@@ -78,6 +84,7 @@ export class UserTestAvailableController {
   })
   @ApiNotFoundResponse({ description: 'Resource not found' })
   @ApiBadRequestResponse({ description: 'Validation error' })
+  @UseGuards(AdminGuard)
   update(
     @Param('userId') id: string,
     @Body() updateUserTestAvailableDto: UpdateUserTestAvailableDto,
@@ -92,6 +99,7 @@ export class UserTestAvailableController {
   @ApiOkResponse({ description: 'The resource was deleted successfully' })
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @ApiNotFoundResponse({ description: 'Resource not found' })
+  @UseGuards(AdminGuard)
   remove(@Param('id') id: string) {
     return this.userTestAvailableService.remove(+id);
   }

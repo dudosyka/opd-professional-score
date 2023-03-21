@@ -43,9 +43,12 @@ export class UserController {
     description: 'The login was successfully proceed',
     type: TokenOutputDto,
   })
-  login(@Req() req, @Body() loginUserDto: LoginUserDto): { token: string } {
+  login(
+    @Req() req,
+    @Body() loginUserDto: LoginUserDto,
+  ): { token: string; role: number } {
     console.log(loginUserDto);
-    return { token: this.userService.auth(req.user) };
+    return { token: this.userService.auth(req.user), role: req.user.role };
   }
 
   @Post('sign-up')
