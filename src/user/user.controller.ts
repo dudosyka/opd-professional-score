@@ -29,6 +29,7 @@ import {
 import { OutputUserDto } from './dto/output-user.dto';
 import TokenOutputDto from './dto/token-output.dto';
 import LoginUserDto from './dto/login-user.dto';
+import { CreateSimpleUserDto } from './dto/create-simple-user.dto';
 
 @Controller('user')
 @ApiForbiddenResponse({ description: 'Unauthorized Request' })
@@ -53,7 +54,7 @@ export class UserController {
     description: 'The registration was successfully proceed',
     type: Boolean,
   })
-  signUp(@Body() userDto: CreateUserDto) {
+  signUp(@Body() userDto: CreateSimpleUserDto) {
     return this.userService.createSimpleUser(userDto);
   }
   @Get('hash/:str')
