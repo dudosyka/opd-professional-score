@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { UserTestAvailableService } from './user-test-available.service';
 import { UpdateUserTestAvailableDto } from './dto/update-user-test-available.dto';
@@ -65,6 +66,17 @@ export class UserTestAvailableController {
   @ApiNotFoundResponse({ description: 'Resource not found' })
   findByUser(@Param('userId') userId: number) {
     return this.userTestAvailableService.findByUser(userId);
+  }
+
+  @Get('/current/user')
+  @ApiOkResponse({
+    description: 'The resource was returned successfully',
+    isArray: true,
+    type: OutputUserTestAvailableDto,
+  })
+  @ApiNotFoundResponse({ description: 'Resource not found' })
+  findByCurrent(@Req() req) {
+    return this.userTestAvailableService.findByUser(req.user.sub);
   }
 
   @Get(':id')

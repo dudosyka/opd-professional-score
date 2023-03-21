@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Param, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { UserTestService } from './user-test.service';
 import { PassUserTestDto } from './dto/pass-user-test.dto';
 import {
@@ -65,6 +73,17 @@ export class UserTestController {
     return this.userTestService.findByUser(userId);
   }
 
+  @Get('/current/result')
+  @ApiOkResponse({
+    description: 'The resource was returned successfully',
+    isArray: true,
+    type: OutputUserTestDto,
+  })
+  @ApiNotFoundResponse({ description: 'Resource not found' })
+  findByCurUser(@Req() req) {
+    return this.userTestService.findByUser(req.user.sub);
+  }
+
   @Get('/result/:userId/:testId')
   @UseGuards(AdminGuard)
   @ApiOkResponse({
@@ -75,5 +94,16 @@ export class UserTestController {
   @ApiNotFoundResponse({ description: 'Resource not found' })
   findByUserTest(@Param('userId') userId, @Param('testId') testId: number) {
     return this.userTestService.findByUserTest(userId, testId);
+  }
+
+  @Get('/current/result/:testId')
+  @ApiOkResponse({
+    description: 'The resource was returned successfully',
+    isArray: true,
+    type: OutputUserTestDto,
+  })
+  @ApiNotFoundResponse({ description: 'Resource not found' })
+  findByCurUserTest(@Req() req, @Param('testId') testId: number) {
+    return this.userTestService.findByUserTest(req.user.sub, testId);
   }
 }
