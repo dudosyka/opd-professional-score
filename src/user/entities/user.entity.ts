@@ -16,10 +16,14 @@ export class UserEntity extends Model {
   @Column
   name: string;
 
-  @Column
+  @Column({
+    defaultValue: 0,
+  })
   sex: number;
 
-  @Column
+  @Column({
+    defaultValue: 0,
+  })
   birthday: number;
 
   @Column
