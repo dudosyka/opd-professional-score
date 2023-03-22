@@ -111,6 +111,19 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiTags('User CRUD')
+  @Get('all/resp')
+  @ApiOkResponse({
+    description: 'The resource was returned successfully',
+    isArray: true,
+    type: OutputUserDto,
+  })
+  findAllResp() {
+    return this.userService.findAllResp();
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiTags('User CRUD')
   @Get(':id')
   @ApiOkResponse({
     description: 'The resource was returned successfully',

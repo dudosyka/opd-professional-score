@@ -5,6 +5,7 @@ import { UserEntity } from './entities/user.entity';
 import { BcryptUtil } from '../utils/bcrypt.util';
 import { JwtUtil } from '../utils/jwt.util';
 import { ModelNotFoundException } from '../exceptions/model-not-found.exception';
+import { Op } from 'sequelize';
 
 @Injectable()
 export class UserService {
@@ -42,6 +43,19 @@ export class UserService {
       attributes: ['id', 'name', 'login', 'role'],
       where: {
         role: 1,
+      },
+    });
+  }
+
+  async findAllResp(): Promise<UserEntity[]> {
+    return await UserEntity.findAll({
+      attributes: ['id', 'name', 'login', 'role'],
+      where: {
+        //On Id 1 we put all invite passes
+        [Op.not]: {
+          id: 1,
+        },
+        role: 0,
       },
     });
   }

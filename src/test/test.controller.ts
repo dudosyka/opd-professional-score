@@ -1,4 +1,4 @@
-import { Controller, Get, Body, Patch, Param } from '@nestjs/common';
+import { Controller, Get, Body, Patch, Param, UseGuards } from '@nestjs/common';
 import { TestService } from './test.service';
 import { UpdateTestDto } from './dto/update-test.dto';
 import {
@@ -10,11 +10,13 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { OutputTestDto } from './dto/output-test.dto';
+import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 
 @Controller('test')
 @ApiTags('Test')
 @ApiForbiddenResponse({ description: 'Unauthorized Request' })
 @ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 export class TestController {
   constructor(private readonly testService: TestService) {}
 

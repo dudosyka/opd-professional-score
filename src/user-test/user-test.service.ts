@@ -6,6 +6,7 @@ import { ModelNotFoundException } from '../exceptions/model-not-found.exception'
 import { OutputUserTestDto } from './dto/output-user-test.dto';
 import { UserEntity } from '../user/entities/user.entity';
 import { TestEntity } from '../test/entities/test.entity';
+import { PassUserTestInviteDto } from './dto/pass-user-test-invite.dto';
 
 @Injectable()
 export class UserTestService {
@@ -27,6 +28,23 @@ export class UserTestService {
     await this.userTestAvailableService.remove(model.id);
 
     return userTestModel;
+  }
+
+  async createInv(createUserTestDto: PassUserTestInviteDto) {
+    const testModel = await TestEntity.findOne({
+      where: {
+        id: createUserTestDto.test_id,
+      },
+    });
+
+    if (!testModel)
+      throw new ModelNotFoundException(TestEntity, createUserTestDto.test_id);
+
+    return await UserTestEntity.create({
+      user_id: 1, //We always link invites to UserEntity with id 1 for passes
+      test_id: createUserTestDto.test_id,
+      result: createUserTestDto.result,
+    });
   }
 
   findAll(): Promise<OutputUserTestDto[]> {

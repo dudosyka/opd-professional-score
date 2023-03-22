@@ -21,6 +21,7 @@ import {
 import { OutputUserTestDto } from './dto/output-user-test.dto';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { AdminGuard } from '../guards/admin.guard';
+import { PassUserTestInviteDto } from './dto/pass-user-test-invite.dto';
 
 @Controller('user-test')
 @ApiTags('User tests')
@@ -38,6 +39,16 @@ export class UserTestController {
   @ApiBadRequestResponse({ description: 'Validation error' })
   create(@Body() createUserTestDto: PassUserTestDto) {
     return this.userTestService.create(createUserTestDto);
+  }
+
+  @Post('inv')
+  @ApiCreatedResponse({
+    description: 'Created Successfully',
+    type: OutputUserTestDto,
+  })
+  @ApiBadRequestResponse({ description: 'Validation error' })
+  createInvite(@Body() createUserTestDto: PassUserTestInviteDto) {
+    return this.userTestService.createInv(createUserTestDto);
   }
 
   @Get()
