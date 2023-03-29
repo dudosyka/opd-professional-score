@@ -28,8 +28,6 @@ import OutputProfessionDto from './dto/output-profession.dto';
 @Controller('profession')
 @ApiTags('Profession CRUD')
 @ApiForbiddenResponse({ description: 'Unauthorized Request' })
-@ApiBearerAuth()
-@UseGuards(JwtAuthGuard, ExpertGuard)
 export class ProfessionController {
   constructor(private readonly professionService: ProfessionService) {}
 
@@ -39,6 +37,8 @@ export class ProfessionController {
     type: OutputProfessionDto,
   })
   @ApiBadRequestResponse({ description: 'Validation error' })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, ExpertGuard)
   create(@Req() req, @Body() createProfessionDto: CreateProfessionDto) {
     createProfessionDto.author_id = req.user.id;
     return this.professionService.create(createProfessionDto);
@@ -71,6 +71,8 @@ export class ProfessionController {
   })
   @ApiNotFoundResponse({ description: 'Resource not found' })
   @ApiBadRequestResponse({ description: 'Validation error' })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, ExpertGuard)
   update(
     @Param('id') id: string,
     @Body() updateProfessionDto: UpdateProfessionDto,
@@ -82,6 +84,8 @@ export class ProfessionController {
   @ApiOkResponse({ description: 'The resource was deleted successfully' })
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @ApiNotFoundResponse({ description: 'Resource not found' })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, ExpertGuard)
   remove(@Param('id') id: string) {
     return this.professionService.remove(+id);
   }

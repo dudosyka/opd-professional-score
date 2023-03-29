@@ -29,8 +29,6 @@ import { AssessmentEntity } from './entities/assessment.entity';
 @Controller('assessment')
 @ApiTags('Assessment CRUD')
 @ApiForbiddenResponse({ description: 'Unauthorized Request' })
-@ApiBearerAuth()
-@UseGuards(JwtAuthGuard, ExpertGuard)
 export class AssessmentController {
   constructor(private readonly assessmentService: AssessmentService) {}
 
@@ -40,6 +38,8 @@ export class AssessmentController {
     type: OutputAssessmentDto,
   })
   @ApiBadRequestResponse({ description: 'Validation error' })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, ExpertGuard)
   create(@Body() createAssessmentDto: CreateAssessmentDto, @Req() req) {
     createAssessmentDto.user_id = req.user.id;
     return this.assessmentService.create(createAssessmentDto);
@@ -85,6 +85,8 @@ export class AssessmentController {
   })
   @ApiNotFoundResponse({ description: 'Resource not found' })
   @ApiBadRequestResponse({ description: 'Validation error' })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, ExpertGuard)
   update(
     @Req() req,
     @Param('id') id: string,
@@ -101,6 +103,8 @@ export class AssessmentController {
   })
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @ApiNotFoundResponse({ description: 'Resource not found' })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, ExpertGuard)
   remove(@Param('id') id: string) {
     return this.assessmentService.remove(+id);
   }

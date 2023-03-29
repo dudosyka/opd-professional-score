@@ -95,7 +95,6 @@ export class UserController {
     return this.userService.create(createUserDto);
   }
 
-  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiTags('User CRUD')
   @Get()
@@ -121,7 +120,6 @@ export class UserController {
     return this.userService.findAllResp();
   }
 
-  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiTags('User CRUD')
   @Get(':id')
