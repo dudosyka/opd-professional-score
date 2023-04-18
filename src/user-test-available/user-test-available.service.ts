@@ -56,6 +56,7 @@ export class UserTestAvailableService {
       res.map((el) => {
         return {
           id: el.id,
+          settings: el.settings,
           relative_id: el.relative_id,
           user_id: el.user_id,
           user: el.user,
