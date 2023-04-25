@@ -24,6 +24,8 @@ import {
 import { OutputUserTestAvailableDto } from './dto/output-user-test-available.dto';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { AdminGuard } from '../guards/admin.guard';
+import { ExpertGuard } from '../guards/expert.guard';
+import { UpdateUserTestAvailableRelativesDto } from './dto/update-user-test-available-relatives.dto';
 
 @Controller('user-test-available')
 @ApiTags('User available tests')
@@ -105,6 +107,24 @@ export class UserTestAvailableController {
     return this.userTestAvailableService.update(
       +id,
       updateUserTestAvailableDto,
+    );
+  }
+
+  @Patch('update-relatives/:userId')
+  @ApiOkResponse({
+    description: 'The resource was updated successfully',
+    type: OutputUserTestAvailableDto,
+  })
+  @ApiNotFoundResponse({ description: 'Resource not found' })
+  @ApiBadRequestResponse({ description: 'Validation error' })
+  @UseGuards(ExpertGuard)
+  updateRelatives(
+    @Param('userId') id: number,
+    @Body()
+    updateUserTestAvailableRelativesDto: UpdateUserTestAvailableRelativesDto,
+  ) {
+    return this.userTestAvailableService.updateRelatives(
+      updateUserTestAvailableRelativesDto,
     );
   }
 

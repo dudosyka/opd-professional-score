@@ -7,6 +7,10 @@ import { OutputUserTestAvailableDto } from './dto/output-user-test-available.dto
 import { ModelNotFoundException } from '../exceptions/model-not-found.exception';
 import { UserEntity } from '../user/entities/user.entity';
 import { TestEntity } from '../test/entities/test.entity';
+import {
+  TestToRelative,
+  UpdateUserTestAvailableRelativesDto,
+} from './dto/update-user-test-available-relatives.dto';
 
 @Injectable()
 export class UserTestAvailableService {
@@ -51,6 +55,7 @@ export class UserTestAvailableService {
       where: {
         user_id: userId,
       },
+      order: [['relative_id', 'DESC']],
       include: [TestEntity, UserEntity],
     }).then((res) =>
       res.map((el) => {
@@ -135,5 +140,39 @@ export class UserTestAvailableService {
     await this.recountRelatives(model.user_id);
 
     return true;
+  }
+
+  async updateRelatives(
+    updateUserTestAvailableRelativesDto: UpdateUserTestAvailableRelativesDto,
+  ) {
+    await Promise.all(
+      updateUserTestAvailableRelativesDto.testToRelative.map(
+        async (el: TestToRelative) => {
+          await UserTestAvailableEntity.update(
+            {
+              relative_id: el.relativeId,
+            },
+            {
+              where: {
+                id: el.testId,
+              },
+            },
+          )
+            .then((r) => {
+              console.log(r);
+            })
+            .catch(() => {
+              throw new ModelNotFoundException(
+                UserTestAvailableEntity,
+                el.testId,
+              );
+            });
+        },
+      ),
+    )
+      .then(() => true)
+      .catch((err) => {
+        throw err;
+      });
   }
 }
