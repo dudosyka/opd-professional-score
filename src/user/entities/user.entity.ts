@@ -26,6 +26,11 @@ export class UserEntity extends Model {
   })
   birthday: number;
 
+  public calculateAge(): number {
+    const yearInSeconds = 365 * 24 * 60 * 60 * 1000;
+    return Math.floor((Date.now() - this.birthday) / yearInSeconds);
+  }
+
   @Column
   login: string;
 

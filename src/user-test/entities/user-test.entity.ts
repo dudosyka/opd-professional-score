@@ -32,5 +32,5 @@ export class UserTestEntity extends Model {
   @Column({
     type: DataType.JSON,
   })
-  result: string;
+  result: any;
 }

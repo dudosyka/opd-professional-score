@@ -1,5 +1,25 @@
-import { IsJSON, IsNumber } from 'class-validator';
+import { IsNumber, ValidateNested } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
+
+export class UserTestResultDto {
+  @IsNumber(
+    {},
+    {
+      message: 'points must be array of INT',
+      each: true,
+    },
+  )
+  points: number[];
+
+  @IsNumber(
+    {},
+    {
+      message: 'avg must be number',
+    },
+  )
+  avg: number;
+}
 
 export class PassUserTestDto {
   @IsNumber(
@@ -14,12 +34,11 @@ export class PassUserTestDto {
   })
   user_available_test: number;
 
-  @IsJSON({
-    message: 'result must be valid JSON',
-  })
   @ApiProperty({
     type: String,
     description: 'Test result',
   })
-  result: string;
+  @ValidateNested()
+  @Type(() => UserTestResultDto)
+  result: UserTestResultDto;
 }

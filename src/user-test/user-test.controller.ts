@@ -14,14 +14,15 @@ import {
   ApiBearerAuth,
   ApiCreatedResponse,
   ApiForbiddenResponse,
-  ApiNotFoundResponse,
   ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
 import { OutputUserTestDto } from './dto/output-user-test.dto';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
-import { AdminGuard } from '../guards/admin.guard';
 import { PassUserTestInviteDto } from './dto/pass-user-test-invite.dto';
+import { UserTestTypesOutputDto } from './dto/user-test-types.output.dto';
+import { UserTestListOutputDto } from './dto/user-test-list-output.dto';
+import { UserTestOutputDto } from './dto/user-test-output.dto';
 
 @Controller('user-test')
 @ApiTags('User tests')
@@ -51,70 +52,43 @@ export class UserTestController {
     return this.userTestService.createInv(createUserTestDto);
   }
 
-  @Get()
+  @Get('types')
   @ApiOkResponse({
     description: 'The resource was returned successfully',
     isArray: true,
-    type: OutputUserTestDto,
+    type: UserTestTypesOutputDto,
   })
-  @UseGuards(AdminGuard)
-  findAll() {
-    return this.userTestService.findAll();
+  @ApiBadRequestResponse({ description: 'Validation error' })
+  async getTestTypes() {
+    return this.userTestService.getTypes();
   }
 
-  @Get(':id')
+  @Get('result/:typeId/all')
+  @ApiOkResponse({
+    description: 'The resource was returned successfully',
+    isArray: true,
+    type: UserTestListOutputDto,
+  })
+  async getResultsByType(@Param('typeId') typeId: string, @Req() req) {
+    const filter = {
+      test_id: parseInt(typeId),
+      user_id: 0,
+    };
+
+    console.log(req.user);
+
+    if (req.user.role == 0) filter.user_id = req.user.id;
+
+    return this.userTestService.getResults(filter);
+  }
+
+  @Get('result/:userTestId')
   @ApiOkResponse({
     description: 'The resource was returned successfully',
     isArray: false,
-    type: OutputUserTestDto,
+    type: UserTestOutputDto,
   })
-  @ApiNotFoundResponse({ description: 'Resource not found' })
-  findOne(@Param('id') id: string) {
-    return this.userTestService.findOne(+id);
-  }
-
-  @Get('/result/:userId')
-  @ApiOkResponse({
-    description: 'The resource was returned successfully',
-    isArray: true,
-    type: OutputUserTestDto,
-  })
-  @ApiNotFoundResponse({ description: 'Resource not found' })
-  findByUser(@Param('userId') userId: number) {
-    return this.userTestService.findByUser(userId);
-  }
-
-  @Get('/current/result')
-  @ApiOkResponse({
-    description: 'The resource was returned successfully',
-    isArray: true,
-    type: OutputUserTestDto,
-  })
-  @ApiNotFoundResponse({ description: 'Resource not found' })
-  findByCurUser(@Req() req) {
-    return this.userTestService.findByUser(req.user.id);
-  }
-
-  @Get('/result/:userId/:testId')
-  @UseGuards(AdminGuard)
-  @ApiOkResponse({
-    description: 'The resource was returned successfully',
-    isArray: true,
-    type: OutputUserTestDto,
-  })
-  @ApiNotFoundResponse({ description: 'Resource not found' })
-  findByUserTest(@Param('userId') userId, @Param('testId') testId: number) {
-    return this.userTestService.findByUserTest(userId, testId);
-  }
-
-  @Get('/current/result/:testId')
-  @ApiOkResponse({
-    description: 'The resource was returned successfully',
-    isArray: true,
-    type: OutputUserTestDto,
-  })
-  @ApiNotFoundResponse({ description: 'Resource not found' })
-  findByCurUserTest(@Req() req, @Param('testId') testId: number) {
-    return this.userTestService.findByUserTest(req.user.id, testId);
+  async getResult(@Param('userTestId') userTestId: string) {
+    return this.userTestService.getOneResult(parseInt(userTestId));
   }
 }
