@@ -18,6 +18,7 @@ import { HttpExceptionFilter } from './filters/http-exception.filter';
 import { UserTestModule } from './user-test/user-test.module';
 import { TestModule } from './test/test.module';
 import { UserTestAvailableModule } from './user-test-available/user-test-available.module';
+import { ParamModule } from './param/param.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { UserTestAvailableModule } from './user-test-available/user-test-availab
     UserTestModule,
     TestModule,
     UserTestAvailableModule,
+    ParamModule,
   ],
   controllers: [AppController],
   providers: [

@@ -24,6 +24,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import OutputProfessionDto from './dto/output-profession.dto';
+import { UpdatePvkProfDto } from './dto/update-pvk-prof.dto';
 
 @Controller('profession')
 @ApiTags('Profession CRUD')
@@ -88,5 +89,18 @@ export class ProfessionController {
   @UseGuards(JwtAuthGuard, ExpertGuard)
   remove(@Param('id') id: string) {
     return this.professionService.remove(+id);
+  }
+
+  @Post(':id')
+  @ApiOkResponse({
+    description: 'The resource was updated successfully',
+    type: OutputProfessionDto,
+  })
+  @ApiNotFoundResponse({ description: 'Resource not found' })
+  @ApiBadRequestResponse({ description: 'Validation error' })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, ExpertGuard)
+  updatePvkProf(@Body() data: UpdatePvkProfDto, @Param('id') id: string) {
+    return this.professionService.updatePvkProf(parseInt(id), data);
   }
 }

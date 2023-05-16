@@ -1,7 +1,9 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { PvkService } from './pvk.service';
 import { ApiNotFoundResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import OutputPvkDto from './dto/output-pvk.dto';
+import { EvaluationCriteriaEntity } from './entities/evaluation.criteria.entity';
+import { CreateCriteriaDto } from './dto/create-criteria.dto';
 
 @Controller('pvk')
 @ApiTags('PVK')
@@ -31,6 +33,18 @@ export class PvkController {
   @ApiNotFoundResponse({ description: 'Resource not found' })
   findOne(@Param('id') id: string) {
     return this.pvkService.getOne(+id);
+  }
+
+  @Post(':id/criteria')
+  @ApiOkResponse({
+    description: 'The resource was updates successfully',
+  })
+  @ApiNotFoundResponse({ description: 'Rosource not found' })
+  criteriaSet(
+    @Body('criteries') data: CreateCriteriaDto[],
+    @Param('id') id: string,
+  ): Promise<EvaluationCriteriaEntity[]> {
+    return this.pvkService.criteriaSet(parseInt(id), data);
   }
 
   // @Patch(':id')

@@ -4,6 +4,8 @@ import { UpdateProfessionDto } from './dto/update-profession.dto';
 import { ProfessionEntity } from './entities/profession.entity';
 import { ModelNotFoundException } from '../exceptions/model-not-found.exception';
 import OutputProfessionDto from './dto/output-profession.dto';
+import { UpdatePvkProfDto } from './dto/update-pvk-prof.dto';
+import { ProfessionPvkEntity } from './entities/profession.pvk.entity';
 
 @Injectable()
 export class ProfessionService {
@@ -72,5 +74,24 @@ export class ProfessionService {
     await model.destroy();
 
     return true;
+  }
+
+  async updatePvkProf(prof: number, data: UpdatePvkProfDto): Promise<boolean> {
+    await ProfessionPvkEntity.destroy({
+      where: {
+        prof_id: prof,
+      },
+    });
+
+    return (
+      (
+        await ProfessionPvkEntity.bulkCreate(
+          data.pvk_ids.map((el) => ({
+            pvk_id: el,
+            prof_id: prof,
+          })),
+        )
+      ).length > 0
+    );
   }
 }

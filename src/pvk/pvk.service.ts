@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { PvkEntity } from './entities/pvk.entity';
 import { ModelNotFoundException } from '../exceptions/model-not-found.exception';
 import OutputPvkDto from './dto/output-pvk.dto';
+import { CreateCriteriaDto } from './dto/create-criteria.dto';
+import { EvaluationCriteriaEntity } from './entities/evaluation.criteria.entity';
 
 @Injectable()
 export class PvkService {
@@ -56,4 +58,15 @@ export class PvkService {
   // remove(id: number) {
   //   return `This action removes a #${id} pvk`;
   // }
+  async criteriaSet(
+    id: number,
+    data: CreateCriteriaDto[],
+  ): Promise<EvaluationCriteriaEntity[]> {
+    return await EvaluationCriteriaEntity.bulkCreate(
+      data.map((el) => ({
+        pvk_id: id,
+        ...el,
+      })),
+    );
+  }
 }

@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { UpdateTestDto } from './dto/update-test.dto';
 import { TestEntity } from './entities/test.entity';
 import { ModelNotFoundException } from '../exceptions/model-not-found.exception';
+import { TestParamEntity } from './entities/test.param.entity';
 
 @Injectable()
 export class TestService {
@@ -26,6 +27,12 @@ export class TestService {
 
     return await model.update({
       ...updateTestDto,
+    });
+  }
+
+  async getAllWithParams(): Promise<TestEntity[]> {
+    return await TestEntity.findAll({
+      include: [TestParamEntity],
     });
   }
 }

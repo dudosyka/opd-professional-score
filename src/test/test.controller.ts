@@ -54,4 +54,13 @@ export class TestController {
   ): Promise<OutputTestDto> | never {
     return this.testService.update(+id, updateTestDto);
   }
+
+  @Get('/params')
+  @ApiOkResponse({
+    description: 'The resource was returned successfully',
+    isArray: false,
+  })
+  async getAllWithParams() {
+    return await this.testService.getAllWithParams();
+  }
 }
