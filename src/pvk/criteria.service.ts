@@ -6,12 +6,13 @@ import { EvaluationCriteriaParamsEntity } from './entities/evaluation.criteria.p
 import { ParamEntity } from '../param/entities/param.entity';
 import { PvkEvaluationCriteriaEntity } from './entities/pvk.evaluation.criteria.entity';
 import { TestEntity } from '../test/entities/test.entity';
+import { UpdateCriteriaDto } from './dto/update-criteria.dto';
+import { Op } from 'sequelize';
+import { ModelNotFoundException } from '../exceptions/model-not-found.exception';
 
 @Injectable()
 export class CriteriaService {
   processModelToDto(model: EvaluationCriteriaEntity): OutputCriteriaDto {
-    console.log(model.dataValues);
-    console.log(model);
     return {
       id: model.id,
       name: model.name,
@@ -27,6 +28,20 @@ export class CriteriaService {
       })),
     };
   }
+
+  async getOne(id: number): Promise<EvaluationCriteriaEntity> {
+    const model = await EvaluationCriteriaEntity.findOne({
+      where: {
+        id,
+      },
+      include: [{ model: ParamEntity, include: [TestEntity] }],
+    });
+
+    if (!model) throw new ModelNotFoundException(EvaluationCriteriaEntity, id);
+
+    return model;
+  }
+
   async create(
     createCriteriaDto: CreateCriteriaDto,
   ): Promise<OutputCriteriaDto> {
@@ -49,6 +64,58 @@ export class CriteriaService {
     });
 
     return this.processModelToDto(result);
+  }
+
+  async remove(criteria_id: number) {
+    await EvaluationCriteriaParamsEntity.destroy({
+      where: {
+        criteria_id,
+      },
+    });
+    await PvkEvaluationCriteriaEntity.destroy({
+      where: {
+        criteria_id,
+      },
+    });
+    await EvaluationCriteriaEntity.destroy({
+      where: {
+        id: criteria_id,
+      },
+    });
+  }
+
+  async update(
+    updateCriteriaDto: UpdateCriteriaDto,
+    id: number,
+  ): Promise<OutputCriteriaDto> {
+    if (updateCriteriaDto.name) {
+      await EvaluationCriteriaEntity.update(
+        {
+          name: updateCriteriaDto.name,
+        },
+        {
+          where: {
+            id,
+          },
+        },
+      );
+    }
+
+    if (updateCriteriaDto.params) {
+      await EvaluationCriteriaParamsEntity.destroy({
+        where: {
+          criteria_id: id,
+        },
+      });
+      await EvaluationCriteriaParamsEntity.bulkCreate(
+        updateCriteriaDto.params.map((el) => ({
+          ...el,
+          criteria_id: id,
+        })),
+      );
+    }
+
+    return this.processModelToDto(await this.getOne(id));
   }
 
   async getAllByPvk(pvk_id: number): Promise<OutputCriteriaDto[]> {
