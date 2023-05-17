@@ -72,6 +72,12 @@ export class PvkService {
     id: number,
     data: CreateCriteriaPvkDto,
   ): Promise<WeightedCriteriaDto[]> {
+    await PvkEvaluationCriteriaEntity.destroy({
+      where: {
+        pvk_id: id,
+      },
+    });
+
     await PvkEvaluationCriteriaEntity.bulkCreate(
       data.criteria.map((el) => ({
         pvk_id: id,
