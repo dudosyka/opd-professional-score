@@ -9,6 +9,12 @@ export class OutputCriteriaDto {
   id: number;
 
   @ApiProperty({
+    type: String,
+    description: 'EvaluationCriteria entity name',
+  })
+  name: string;
+
+  @ApiProperty({
     type: WeightedParamDto,
     description: 'Criteria param',
   })

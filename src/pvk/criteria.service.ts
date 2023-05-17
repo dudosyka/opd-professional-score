@@ -14,6 +14,7 @@ export class CriteriaService {
     console.log(model);
     return {
       id: model.id,
+      name: model.name,
       params: model.params.map((el) => ({
         id: el.id,
         name: el.name,
