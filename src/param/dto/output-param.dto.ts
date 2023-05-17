@@ -24,6 +24,12 @@ export class OutputParamDto {
     description: 'Key of param in result json',
   })
   key: string;
+
+  @ApiProperty({
+    type: String,
+    description: 'Test title',
+  })
+  test_name: string;
 }
 
 export class WeightedParamDto extends OutputParamDto {

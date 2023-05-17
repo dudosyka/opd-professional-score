@@ -5,6 +5,7 @@ import { EvaluationCriteriaEntity } from './entities/evaluation.criteria.entity'
 import { EvaluationCriteriaParamsEntity } from './entities/evaluation.criteria.params.entity';
 import { ParamEntity } from '../param/entities/param.entity';
 import { PvkEvaluationCriteriaEntity } from './entities/pvk.evaluation.criteria.entity';
+import { TestEntity } from '../test/entities/test.entity';
 
 @Injectable()
 export class CriteriaService {
@@ -18,6 +19,7 @@ export class CriteriaService {
         name: el.name,
         description: el.description,
         key: el.key,
+        test_name: el.tests[0].name,
         weight: el.dataValues.EvaluationCriteriaParamsEntity.weight,
         direction: el.dataValues.EvaluationCriteriaParamsEntity.direction,
         slice: el.dataValues.EvaluationCriteriaParamsEntity.slice,
@@ -42,7 +44,7 @@ export class CriteriaService {
       where: {
         id: criteria.id,
       },
-      include: [ParamEntity],
+      include: [{ model: ParamEntity, include: [TestEntity] }],
     });
 
     return this.processModelToDto(result);
@@ -53,7 +55,12 @@ export class CriteriaService {
       where: {
         pvk_id,
       },
-      include: [{ model: EvaluationCriteriaEntity, include: [ParamEntity] }],
+      include: [
+        {
+          model: EvaluationCriteriaEntity,
+          include: [{ model: ParamEntity, include: [TestEntity] }],
+        },
+      ],
     });
 
     return result.map((el) => this.processModelToDto(el.criteria));
@@ -61,7 +68,7 @@ export class CriteriaService {
 
   async getAll(): Promise<OutputCriteriaDto[]> {
     const all = await EvaluationCriteriaEntity.findAll({
-      include: [ParamEntity],
+      include: [{ model: ParamEntity, include: [TestEntity] }],
     });
 
     return all.map((el) => this.processModelToDto(el));

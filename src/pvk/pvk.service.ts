@@ -8,6 +8,7 @@ import { CreateCriteriaPvkDto } from './dto/create-criteria-pvk.dto';
 import { PvkEvaluationCriteriaEntity } from './entities/pvk.evaluation.criteria.entity';
 import { CriteriaService } from './criteria.service';
 import { ParamEntity } from '../param/entities/param.entity';
+import { TestEntity } from '../test/entities/test.entity';
 
 @Injectable()
 export class PvkService {
@@ -27,7 +28,12 @@ export class PvkService {
 
   async findAll(): Promise<PvkEntity[]> {
     return await PvkEntity.findAll({
-      include: [{ model: EvaluationCriteriaEntity, include: [ParamEntity] }],
+      include: [
+        {
+          model: EvaluationCriteriaEntity,
+          include: [{ model: ParamEntity, include: [TestEntity] }],
+        },
+      ],
     });
   }
 
@@ -36,7 +42,12 @@ export class PvkService {
       where: {
         id: ids,
       },
-      include: [{ model: EvaluationCriteriaEntity, include: [ParamEntity] }],
+      include: [
+        {
+          model: EvaluationCriteriaEntity,
+          include: [{ model: ParamEntity, include: [TestEntity] }],
+        },
+      ],
     });
   }
 
@@ -53,7 +64,12 @@ export class PvkService {
       where: {
         id,
       },
-      include: [{ model: EvaluationCriteriaEntity, include: [ParamEntity] }],
+      include: [
+        {
+          model: EvaluationCriteriaEntity,
+          include: [{ model: ParamEntity, include: [TestEntity] }],
+        },
+      ],
     });
 
     if (!model) throw new ModelNotFoundException(PvkEntity, id);
