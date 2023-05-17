@@ -3,7 +3,7 @@ import { PvkEntity } from './entities/pvk.entity';
 import { ModelNotFoundException } from '../exceptions/model-not-found.exception';
 import OutputPvkDto from './dto/output-pvk.dto';
 import { EvaluationCriteriaEntity } from './entities/evaluation.criteria.entity';
-import { OutputCriteriaDto } from './dto/output-criteria.dto';
+import { WeightedCriteriaDto } from './dto/output-criteria.dto';
 import { CreateCriteriaPvkDto } from './dto/create-criteria-pvk.dto';
 import { PvkEvaluationCriteriaEntity } from './entities/pvk.evaluation.criteria.entity';
 import { CriteriaService } from './criteria.service';
@@ -26,7 +26,9 @@ export class PvkService {
   }
 
   async findAll(): Promise<PvkEntity[]> {
-    return await PvkEntity.findAll();
+    return await PvkEntity.findAll({
+      include: [{ model: EvaluationCriteriaEntity, include: [ParamEntity] }],
+    });
   }
 
   async findAllByIds(ids: number[]): Promise<PvkEntity[]> {
@@ -34,6 +36,7 @@ export class PvkService {
       where: {
         id: ids,
       },
+      include: [{ model: EvaluationCriteriaEntity, include: [ParamEntity] }],
     });
   }
 
@@ -68,7 +71,7 @@ export class PvkService {
   async criteriaSet(
     id: number,
     data: CreateCriteriaPvkDto,
-  ): Promise<OutputCriteriaDto[]> {
+  ): Promise<WeightedCriteriaDto[]> {
     await PvkEvaluationCriteriaEntity.bulkCreate(
       data.criteria.map((el) => ({
         pvk_id: id,
@@ -77,6 +80,14 @@ export class PvkService {
       })),
     );
 
-    return this.criteriaService.getAllByPvk(id);
+    const idToWeight = {};
+    data.criteria.forEach((el) => {
+      idToWeight[el.criteria_id] = el.weight;
+    });
+
+    return (await this.criteriaService.getAllByPvk(id)).map((el) => ({
+      ...el,
+      weight: idToWeight[el.id],
+    }));
   }
 }
