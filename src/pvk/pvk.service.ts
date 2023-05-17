@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PvkEntity } from './entities/pvk.entity';
 import { ModelNotFoundException } from '../exceptions/model-not-found.exception';
 import OutputPvkDto from './dto/output-pvk.dto';
-import { CreateCriteriaDto } from './dto/create-criteria.dto';
+import { CreateCriteriaDto, CriteriaDto } from './dto/create-criteria.dto';
 import { EvaluationCriteriaEntity } from './entities/evaluation.criteria.entity';
 
 @Injectable()
@@ -60,13 +60,22 @@ export class PvkService {
   // }
   async criteriaSet(
     id: number,
-    data: CreateCriteriaDto[],
+    data: CriteriaDto,
   ): Promise<EvaluationCriteriaEntity[]> {
     return await EvaluationCriteriaEntity.bulkCreate(
-      data.map((el) => ({
+      data.criteria.map((el) => ({
         pvk_id: id,
         ...el,
       })),
     );
+  }
+
+  async getWithCriteria(pvkId: number): Promise<PvkEntity> {
+    return await PvkEntity.findOne({
+      where: {
+        id: pvkId,
+      },
+      include: [EvaluationCriteriaEntity],
+    });
   }
 }

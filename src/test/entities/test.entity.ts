@@ -1,11 +1,14 @@
 import {
   AutoIncrement,
+  BelongsToMany,
   Column,
   DataType,
   Model,
   PrimaryKey,
   Table,
 } from 'sequelize-typescript';
+import { TestParamEntity } from './test.param.entity';
+import { ParamEntity } from '../../param/entities/param.entity';
 
 @Table
 export class TestEntity extends Model {
@@ -21,4 +24,7 @@ export class TestEntity extends Model {
     type: DataType.TEXT,
   })
   description: string;
+
+  @BelongsToMany(() => ParamEntity, () => TestParamEntity, 'test_id', 'id')
+  params: ParamEntity[];
 }

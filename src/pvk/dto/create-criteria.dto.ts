@@ -1,5 +1,6 @@
-import { IsNumber } from 'class-validator';
+import { IsNumber, ValidateNested } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 
 export class CreateCriteriaDto {
   @IsNumber(
@@ -61,4 +62,18 @@ export class CreateCriteriaDto {
     description: 'Param slice point',
   })
   slice: number;
+}
+
+export class CriteriaDto {
+  @ApiProperty({
+    isArray: true,
+    type: CreateCriteriaDto,
+    description: 'Create criteria data',
+  })
+  @ValidateNested({
+    message: 'criteria must be array',
+    each: true,
+  })
+  @Type(() => CreateCriteriaDto)
+  criteria: CreateCriteriaDto[];
 }
