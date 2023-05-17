@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { WeightedCriteriaDto } from './output-criteria.dto';
 
 export default class OutputPvkDto {
   @ApiProperty({
@@ -18,4 +19,10 @@ export default class OutputPvkDto {
     description: 'PVK description',
   })
   description: string;
+
+  @ApiProperty({
+    type: WeightedCriteriaDto,
+    isArray: true,
+  })
+  criteria: WeightedCriteriaDto[];
 }

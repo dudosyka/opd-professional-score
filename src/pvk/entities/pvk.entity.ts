@@ -7,6 +7,7 @@ import {
   Table,
 } from 'sequelize-typescript';
 import { EvaluationCriteriaEntity } from './evaluation.criteria.entity';
+import { PvkEvaluationCriteriaEntity } from './pvk.evaluation.criteria.entity';
 
 @Table
 export class PvkEntity extends Model {
@@ -23,9 +24,9 @@ export class PvkEntity extends Model {
 
   @BelongsToMany(
     () => EvaluationCriteriaEntity,
-    () => EvaluationCriteriaEntity,
+    () => PvkEvaluationCriteriaEntity,
     'pvk_id',
-    'id',
+    'criteria_id',
   )
   criteria: EvaluationCriteriaEntity[];
 }

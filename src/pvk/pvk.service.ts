@@ -2,20 +2,26 @@ import { Injectable } from '@nestjs/common';
 import { PvkEntity } from './entities/pvk.entity';
 import { ModelNotFoundException } from '../exceptions/model-not-found.exception';
 import OutputPvkDto from './dto/output-pvk.dto';
-import { CreateCriteriaDto, CriteriaDto } from './dto/create-criteria.dto';
 import { EvaluationCriteriaEntity } from './entities/evaluation.criteria.entity';
+import { OutputCriteriaDto } from './dto/output-criteria.dto';
+import { CreateCriteriaPvkDto } from './dto/create-criteria-pvk.dto';
+import { PvkEvaluationCriteriaEntity } from './entities/pvk.evaluation.criteria.entity';
+import { CriteriaService } from './criteria.service';
+import { ParamEntity } from '../param/entities/param.entity';
 
 @Injectable()
 export class PvkService {
-  // create(createPvkDto: CreatePvkDto) {
-  //   return 'This action adds a new pvk';
-  // }
+  constructor(private readonly criteriaService: CriteriaService) {}
 
-  private modelOutputProcessor(model: PvkEntity): OutputPvkDto {
+  modelOutputProcessor(model: PvkEntity): OutputPvkDto {
     return {
       id: model.id,
       name: model.name,
       description: model.description,
+      criteria: model.criteria.map((el) => ({
+        ...this.criteriaService.processModelToDto(el),
+        weight: el.dataValues.PvkEvaluationCriteriaEntity.weight,
+      })),
     };
   }
 
@@ -44,6 +50,7 @@ export class PvkService {
       where: {
         id,
       },
+      include: [{ model: EvaluationCriteriaEntity, include: [ParamEntity] }],
     });
 
     if (!model) throw new ModelNotFoundException(PvkEntity, id);
@@ -60,22 +67,16 @@ export class PvkService {
   // }
   async criteriaSet(
     id: number,
-    data: CriteriaDto,
-  ): Promise<EvaluationCriteriaEntity[]> {
-    return await EvaluationCriteriaEntity.bulkCreate(
+    data: CreateCriteriaPvkDto,
+  ): Promise<OutputCriteriaDto[]> {
+    await PvkEvaluationCriteriaEntity.bulkCreate(
       data.criteria.map((el) => ({
         pvk_id: id,
-        ...el,
+        criteria_id: el.criteria_id,
+        weight: el.weight,
       })),
     );
-  }
 
-  async getWithCriteria(pvkId: number): Promise<PvkEntity> {
-    return await PvkEntity.findOne({
-      where: {
-        id: pvkId,
-      },
-      include: [EvaluationCriteriaEntity],
-    });
+    return this.criteriaService.getAllByPvk(id);
   }
 }

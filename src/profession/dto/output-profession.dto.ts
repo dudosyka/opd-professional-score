@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import OutputPvkDto from '../../pvk/dto/output-pvk.dto';
 
 export default class OutputProfessionDto {
   @ApiProperty({
@@ -24,4 +25,11 @@ export default class OutputProfessionDto {
     description: 'Profession creator id',
   })
   author_id: number;
+
+  @ApiProperty({
+    isArray: true,
+    type: OutputPvkDto,
+    description: 'Pinned pvk',
+  })
+  pvk: OutputPvkDto[];
 }

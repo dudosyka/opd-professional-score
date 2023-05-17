@@ -91,7 +91,7 @@ export class ProfessionController {
     return this.professionService.remove(+id);
   }
 
-  @Post(':id')
+  @Post(':id/pvk')
   @ApiOkResponse({
     description: 'The resource was updated successfully',
     type: OutputProfessionDto,

@@ -27,4 +27,7 @@ export class ProfessionPvkEntity extends Model {
 
   @BelongsTo(() => PvkEntity, 'pvk_id')
   pvk: PvkEntity;
+
+  @Column
+  weight: number;
 }

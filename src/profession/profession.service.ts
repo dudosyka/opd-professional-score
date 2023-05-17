@@ -6,15 +6,21 @@ import { ModelNotFoundException } from '../exceptions/model-not-found.exception'
 import OutputProfessionDto from './dto/output-profession.dto';
 import { UpdatePvkProfDto } from './dto/update-pvk-prof.dto';
 import { ProfessionPvkEntity } from './entities/profession.pvk.entity';
+import { PvkEntity } from '../pvk/entities/pvk.entity';
+import { PvkService } from '../pvk/pvk.service';
 
 @Injectable()
 export class ProfessionService {
-  private modelOutputProcessor(model: ProfessionEntity): OutputProfessionDto {
+  constructor(private readonly pvkService: PvkService) {}
+  modelOutputProcessor(model: ProfessionEntity): OutputProfessionDto {
     return {
       id: model.id,
       name: model.name,
       description: model.description,
       author_id: model.author_id,
+      pvk: model.pvk
+        ? model.pvk.map((el) => this.pvkService.modelOutputProcessor(el))
+        : [],
     };
   }
   async create(
@@ -28,7 +34,9 @@ export class ProfessionService {
   }
 
   async findAll(): Promise<ProfessionEntity[]> {
-    return await ProfessionEntity.findAll();
+    return await ProfessionEntity.findAll({
+      include: [PvkEntity],
+    });
   }
 
   async findOne(id: number): Promise<ProfessionEntity> {
@@ -36,6 +44,7 @@ export class ProfessionService {
       where: {
         id,
       },
+      include: [PvkEntity],
     });
 
     if (!model) throw new ModelNotFoundException(ProfessionEntity, id);
@@ -76,22 +85,37 @@ export class ProfessionService {
     return true;
   }
 
-  async updatePvkProf(prof: number, data: UpdatePvkProfDto): Promise<boolean> {
+  async updatePvkProf(
+    prof: number,
+    data: UpdatePvkProfDto,
+  ): Promise<OutputProfessionDto> {
+    const profession = await this.getOne(prof);
     await ProfessionPvkEntity.destroy({
       where: {
         prof_id: prof,
       },
     });
 
-    return (
-      (
-        await ProfessionPvkEntity.bulkCreate(
-          data.pvk_ids.map((el) => ({
-            pvk_id: el,
-            prof_id: prof,
-          })),
-        )
-      ).length > 0
+    const pinnedPvkRelation = await ProfessionPvkEntity.bulkCreate(
+      data.pvk.map((el) => ({
+        pvk_id: el.pvk_id,
+        weight: el.weight,
+        prof_id: prof,
+      })),
     );
+
+    const pinnedPvk = await PvkEntity.findAll({
+      where: {
+        id: pinnedPvkRelation.map((el) => el.pvk_id),
+      },
+    });
+
+    return {
+      id: prof,
+      name: profession.name,
+      description: profession.description,
+      author_id: profession.author_id,
+      pvk: pinnedPvk.map((el) => this.pvkService.modelOutputProcessor(el)),
+    };
   }
 }

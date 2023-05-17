@@ -1,6 +1,7 @@
 import {
   AutoIncrement,
   Column,
+  DataType,
   Model,
   PrimaryKey,
   Table,
@@ -22,6 +23,7 @@ export class UserEntity extends Model {
   sex: number;
 
   @Column({
+    type: DataType.BIGINT,
     defaultValue: 0,
   })
   birthday: number;

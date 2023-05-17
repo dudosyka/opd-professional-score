@@ -1,20 +1,8 @@
-import { IsNumber, ValidateNested } from 'class-validator';
+import { IsNumber, IsString, ValidateNested } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 
-export class CreateCriteriaDto {
-  @IsNumber(
-    {},
-    {
-      message: 'test_id must be numeric',
-    },
-  )
-  @ApiProperty({
-    type: Number,
-    description: 'Test ID',
-  })
-  test_id: number;
-
+export class CreateWeightedParam {
   @IsNumber(
     {},
     {
@@ -23,7 +11,7 @@ export class CreateCriteriaDto {
   )
   @ApiProperty({
     type: Number,
-    description: 'Param ID',
+    description: 'Param entity id',
   })
   param_id: number;
 
@@ -47,7 +35,7 @@ export class CreateCriteriaDto {
   )
   @ApiProperty({
     type: Number,
-    description: 'Param evaluating direction',
+    description: 'Param direction',
   })
   direction: number;
 
@@ -59,21 +47,30 @@ export class CreateCriteriaDto {
   )
   @ApiProperty({
     type: Number,
-    description: 'Param slice point',
+    description: 'Param slice',
   })
   slice: number;
 }
 
-export class CriteriaDto {
+export class CreateCriteriaDto {
+  @ApiProperty({
+    type: String,
+    description: 'Criteria name',
+  })
+  @IsString({
+    message: 'name must be string',
+  })
+  name: string;
+
   @ApiProperty({
     isArray: true,
-    type: CreateCriteriaDto,
+    type: CreateWeightedParam,
     description: 'Create criteria data',
   })
   @ValidateNested({
     message: 'criteria must be array',
     each: true,
   })
-  @Type(() => CreateCriteriaDto)
-  criteria: CreateCriteriaDto[];
+  @Type(() => CreateWeightedParam)
+  params: CreateWeightedParam[];
 }
