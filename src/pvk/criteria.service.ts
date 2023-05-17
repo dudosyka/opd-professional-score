@@ -21,6 +21,7 @@ export class CriteriaService {
         name: el.name,
         description: el.description,
         key: el.key,
+        test_id: el.tests[0].id,
         test_name: el.tests[0].name,
         weight: el.dataValues.EvaluationCriteriaParamsEntity.weight,
         direction: el.dataValues.EvaluationCriteriaParamsEntity.direction,

@@ -30,6 +30,12 @@ export class OutputParamDto {
     description: 'Test title',
   })
   test_name: string;
+
+  @ApiProperty({
+    type: Number,
+    description: 'Test id',
+  })
+  test_id: number;
 }
 
 export class WeightedParamDto extends OutputParamDto {
