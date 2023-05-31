@@ -30,6 +30,8 @@ import { OutputUserDto } from './dto/output-user.dto';
 import TokenOutputDto from './dto/token-output.dto';
 import LoginUserDto from './dto/login-user.dto';
 import { CreateSimpleUserDto } from './dto/create-simple-user.dto';
+import { OutputUserRateProfileDto } from './dto/output-user-rate-profile.dto';
+import { RateProfileAnswer } from './dto/ml-input.dto';
 
 @Controller('user')
 @ApiForbiddenResponse({ description: 'Unauthorized Request' })
@@ -60,6 +62,7 @@ export class UserController {
   signUp(@Body() userDto: CreateSimpleUserDto) {
     return this.userService.createSimpleUser(userDto);
   }
+
   @Get('hash/:str')
   @ApiTags('Authorization')
   async hashStr(@Param('str') str: string) {
@@ -158,5 +161,36 @@ export class UserController {
   @ApiNotFoundResponse({ description: 'Resource not found' })
   remove(@Param('id') id: string) {
     return this.userService.remove(+id);
+  }
+
+  // @UseGuards(JwtAuthGuard)
+  // @ApiBearerAuth()
+  @ApiTags('Rate profile')
+  @Get('/profile/rate/:userId')
+  @ApiOkResponse({
+    description: 'The resource was returned successfully',
+    type: OutputUserDto,
+  })
+  @ApiNotFoundResponse({ description: 'User not found' })
+  @ApiBadRequestResponse({ description: 'Validation error' })
+  rateProfile(@Param('userId') id: string): Promise<OutputUserRateProfileDto> {
+    return this.userService.rate(+id, []);
+  }
+
+  // @UseGuards(JwtAuthGuard)
+  // @ApiBearerAuth()
+  @ApiTags('Rate profile')
+  @Post('/profile/rate/:userId')
+  @ApiOkResponse({
+    description: 'The resource was returned successfully',
+    type: OutputUserDto,
+  })
+  @ApiNotFoundResponse({ description: 'User not found' })
+  @ApiBadRequestResponse({ description: 'Validation error' })
+  rateProfileWithLearning(
+    @Param('userId') id: string,
+    @Body() answer: RateProfileAnswer,
+  ): Promise<OutputUserRateProfileDto> {
+    return this.userService.rate(+id, answer.answer);
   }
 }

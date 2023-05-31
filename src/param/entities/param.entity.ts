@@ -25,6 +25,12 @@ export class ParamEntity extends Model {
   @Column
   key: string;
 
+  @Column
+  slice: number;
+
+  @Column
+  direction: number;
+
   @BelongsToMany(() => TestEntity, () => TestParamEntity, 'param_id', 'test_id')
   tests: TestEntity[];
 }

@@ -6,10 +6,23 @@ import { BcryptUtil } from '../utils/bcrypt.util';
 import { JwtUtil } from '../utils/jwt.util';
 import { ModelNotFoundException } from '../exceptions/model-not-found.exception';
 import { Op } from 'sequelize';
+import { OutputUserRateProfileDto } from './dto/output-user-rate-profile.dto';
+import { UserTestService } from '../user-test/user-test.service';
+import { TestService } from '../test/test.service';
+import { PvkEntity } from '../pvk/entities/pvk.entity';
+import { EvaluationCriteriaEntity } from '../pvk/entities/evaluation.criteria.entity';
+import { ParamEntity } from '../param/entities/param.entity';
+import { TestEntity } from '../test/entities/test.entity';
+import { MlInputDto } from './dto/ml-input.dto';
+import axios from 'axios';
+import { EvaluationCriteriaParamsEntity } from '../pvk/entities/evaluation.criteria.params.entity';
+import { PvkEvaluationCriteriaEntity } from '../pvk/entities/pvk.evaluation.criteria.entity';
 
 @Injectable()
 export class UserService {
   constructor(
+    private userTestService: UserTestService,
+    private testService: TestService,
     @Inject(BcryptUtil) private bcryptUtil: BcryptUtil,
     @Inject(JwtUtil) private jwtUtil: JwtUtil,
   ) {}
@@ -136,5 +149,186 @@ export class UserService {
       hash,
       role: 0,
     });
+  }
+
+  async rate(
+    userId: number,
+    answer: number[],
+  ): Promise<OutputUserRateProfileDto> {
+    const userParamsAverage = {};
+
+    const tests = await this.testService.getAllWithParams();
+    await Promise.all(
+      tests.map(async (el) => {
+        const results = await this.userTestService.getResults({
+          test_id: el.id,
+          user_id: userId,
+        });
+
+        if (results.length <= 0) {
+          throw new Error('Not enough results');
+        }
+
+        console.log(`Test_id: ${el.id}: `, results);
+
+        el.params.map((param, index) => {
+          userParamsAverage[parseInt(param.id.toString())] = {
+            average: Math.round(
+              results.map((res) => res[param.key]).reduce((a, b) => a + b) /
+                results.length,
+            ),
+            direction: param.direction,
+            slice: param.slice,
+            test_id: el.id,
+          };
+        });
+      }),
+    ).catch((err) => {
+      throw err;
+    });
+
+    const pvk = await PvkEntity.findAll({
+      include: [
+        {
+          model: EvaluationCriteriaEntity,
+          include: [{ model: ParamEntity, include: [TestEntity] }],
+        },
+      ],
+    });
+
+    const mlInput = [];
+    let j = 0;
+    pvk.forEach((el) => {
+      const mlInputItem = {
+        pvkId: el.id,
+        input: [],
+        hiddenMatrix: [],
+        outputMatrix: [],
+        answer: [1],
+        learnEpoch: 1,
+      };
+      const input = Object.keys(userParamsAverage)
+        .sort()
+        .map((key) => {
+          const param = userParamsAverage[key];
+          let a = 1;
+          if (param.direction == 1) {
+            if (param.average > param.slice) {
+              return 0;
+            }
+            a = 0;
+          } else {
+            if (param.average < param.slice) {
+              return 0;
+            }
+          }
+          return Math.abs(a - param.average / param.slice);
+        });
+      const hiddenMatrix = [];
+      const outputMatrix = [];
+      outputMatrix.push([]);
+      let i = 0;
+      el.criteria.forEach((criteria) => {
+        hiddenMatrix.push([]);
+        criteria.params.forEach((param) => {
+          hiddenMatrix[i].push({
+            criteriaId: criteria.id,
+            paramId: param.id,
+            weight: param.dataValues.EvaluationCriteriaParamsEntity.weight,
+          });
+        });
+        outputMatrix[j].push({
+          criteriaId: criteria.id,
+          weight: criteria.dataValues.PvkEvaluationCriteriaEntity.weight,
+        });
+        i++;
+      });
+      mlInputItem.hiddenMatrix = hiddenMatrix;
+      mlInputItem.outputMatrix = outputMatrix;
+      mlInputItem.input = input;
+      if (hiddenMatrix.length > 0) mlInput.push(mlInputItem);
+      j++;
+    });
+
+    const data: MlInputDto[] = mlInput.map((el) => {
+      console.log('Input: ', el.input);
+      el.hiddenMatrix = el.hiddenMatrix.map((item) =>
+        item.sort((a, b) => a.paramId - b.paramId),
+      );
+      console.log(
+        'Hidden matrix: ',
+        el.hiddenMatrix.map((m) => m),
+      );
+      console.log(
+        'Output matrix: ',
+        el.outputMatrix.map((m) => m),
+      );
+      return {
+        input: el.input,
+        hiddenMatrix: el.hiddenMatrix.map((m) => m.map((k) => k.weight)),
+        outputMatrix: el.outputMatrix.map((m) => m.map((k) => k.weight)),
+        learnEpoch: answer.length > 0 ? 20 : 0,
+        answer,
+      };
+    });
+
+    const output: OutputUserRateProfileDto = { pvk: [] };
+    console.log(JSON.stringify({ input: data }));
+    return await axios
+      .post(
+        'http://localhost:8082/',
+        { input: data },
+        { headers: { 'Content-Type': 'application/json' } },
+      )
+      .then((el) => {
+        const i = 0;
+        el.data.forEach((el) => {
+          const item = mlInput[i];
+          item.hiddenMatrix.forEach((row, indexR) => {
+            row.forEach((col, indexC) => {
+              EvaluationCriteriaParamsEntity.update(
+                {
+                  weight: el.hiddenMatrix[indexR][indexC],
+                },
+                {
+                  where: {
+                    param_id: col.paramId,
+                    criteria_id: col.criteriaId,
+                  },
+                },
+              );
+            });
+          });
+
+          item.outputMatrix.forEach((row, indexR) => {
+            row.forEach((col, indexC) => {
+              PvkEvaluationCriteriaEntity.update(
+                {
+                  weight: el.outputMatrix[indexR][indexC],
+                },
+                {
+                  where: {
+                    criteria_id: col.criteriaId,
+                  },
+                },
+              );
+            });
+          });
+
+          console.log(el);
+          console.log(el.pvk[0]);
+          output.pvk.push(el.pvk[0]);
+          // console.log(el);
+          // console.log(
+          //   'Hidden matrix: ',
+          //   el.hiddenMatrix.map((m) => m),
+          // );
+          // console.log(
+          //   'Output matrix: ',
+          //   el.outputMatrix.map((m) => m),
+          // );
+        });
+        return output;
+      });
   }
 }

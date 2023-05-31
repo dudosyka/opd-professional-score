@@ -1,56 +1,7 @@
-import { IsNumber, IsString, ValidateNested } from 'class-validator';
+import { IsString, ValidateNested } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-
-export class CreateWeightedParam {
-  @IsNumber(
-    {},
-    {
-      message: 'param_id must be numeric',
-    },
-  )
-  @ApiProperty({
-    type: Number,
-    description: 'Param entity id',
-  })
-  param_id: number;
-
-  @IsNumber(
-    {},
-    {
-      message: 'weight must be numeric',
-    },
-  )
-  @ApiProperty({
-    type: Number,
-    description: 'Param weight',
-  })
-  weight: number;
-
-  @IsNumber(
-    {},
-    {
-      message: 'direction must be numeric',
-    },
-  )
-  @ApiProperty({
-    type: Number,
-    description: 'Param direction',
-  })
-  direction: number;
-
-  @IsNumber(
-    {},
-    {
-      message: 'slice must be numeric',
-    },
-  )
-  @ApiProperty({
-    type: Number,
-    description: 'Param slice',
-  })
-  slice: number;
-}
+import { CreateWeightedParam } from '../../param/dto/create-param.dto';
 
 export class CreateCriteriaDto {
   @ApiProperty({

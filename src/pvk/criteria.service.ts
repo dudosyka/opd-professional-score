@@ -50,6 +50,25 @@ export class CriteriaService {
       name: createCriteriaDto.name,
     });
 
+    const paramsIds = createCriteriaDto.params.map((el) => el.param_id);
+
+    const params = await ParamEntity.findAll({
+      where: {
+        id: {
+          [Op.notIn]: paramsIds,
+        },
+      },
+    });
+
+    params.forEach((el) => {
+      createCriteriaDto.params.push({
+        param_id: el.id,
+        direction: el.direction,
+        weight: 0,
+        slice: el.slice,
+      });
+    });
+
     await EvaluationCriteriaParamsEntity.bulkCreate(
       createCriteriaDto.params.map((el) => ({
         criteria_id: criteria.id,

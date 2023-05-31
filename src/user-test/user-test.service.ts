@@ -95,7 +95,13 @@ export class UserTestService {
       return {
         id: el.id,
         user_name: el.user.name,
-        avg: JSON.parse(el.result).avg,
+        avg: el.result.avg,
+        additional: {
+          ...el.result.additional,
+          avg: el.result.avg,
+        },
+        // avg: JSON.parse(el.result).avg,
+        // additional: JSON.parse(el.result).additional,
         date: el.createdAt,
         user_id: el.user.id,
         user_age: el.user.calculateAge(),
