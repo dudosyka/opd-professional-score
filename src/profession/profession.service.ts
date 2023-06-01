@@ -30,6 +30,18 @@ export class ProfessionService {
       ...createProfessionDto,
     });
 
+    // PvkEntity.findAll().then((data) => {
+    //   ProfessionPvkEntity.bulkCreate(
+    //     data.map((el) => {
+    //       return {
+    //         prof_id: model.id,
+    //         pvk_id: el.id,
+    //         weight: 0.2,
+    //       };
+    //     }),
+    //   );
+    // });
+
     return this.modelOutputProcessor(model);
   }
 

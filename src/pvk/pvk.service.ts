@@ -19,10 +19,12 @@ export class PvkService {
       id: model.id,
       name: model.name,
       description: model.description,
-      criteria: model.criteria.map((el) => ({
-        ...this.criteriaService.processModelToDto(el),
-        weight: el.dataValues.PvkEvaluationCriteriaEntity.weight,
-      })),
+      criteria: model.criteria
+        ? model.criteria.map((el) => ({
+            ...this.criteriaService.processModelToDto(el),
+            weight: el.dataValues.PvkEvaluationCriteriaEntity.weight,
+          }))
+        : [],
     };
   }
 

@@ -99,7 +99,7 @@ export class ProfessionController {
   @ApiNotFoundResponse({ description: 'Resource not found' })
   @ApiBadRequestResponse({ description: 'Validation error' })
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard, ExpertGuard)
+  @UseGuards(JwtAuthGuard)
   updatePvkProf(@Body() data: UpdatePvkProfDto, @Param('id') id: string) {
     return this.professionService.updatePvkProf(parseInt(id), data);
   }

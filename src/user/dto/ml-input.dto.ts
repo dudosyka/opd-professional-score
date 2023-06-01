@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber } from 'class-validator';
+import { IsNumber, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class MlInputDto {
   input: number[];
@@ -9,17 +10,20 @@ export class MlInputDto {
   learnEpoch = 0;
 }
 
+export class AnswerDto {
+  pvkId: number;
+  value: number;
+}
+
 export class RateProfileAnswer {
-  @IsNumber(
-    {},
-    {
-      each: true,
-    },
-  )
+  @ValidateNested({
+    each: true,
+  })
+  @Type(() => AnswerDto)
   @ApiProperty({
-    type: Number,
+    type: AnswerDto,
     isArray: true,
     description: 'PVK values',
   })
-  answer: number[];
+  answer: AnswerDto[];
 }

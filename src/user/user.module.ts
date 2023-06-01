@@ -13,6 +13,8 @@ import { JwtStrategy } from '../strategies/jwt.strategy';
 import { UserTestModule } from '../user-test/user-test.module';
 import { UserTestService } from '../user-test/user-test.service';
 import { TestService } from '../test/test.service';
+import { PvkModule } from '../pvk/pvk.module';
+import { PvkService } from '../pvk/pvk.service';
 
 @Module({
   imports: [
@@ -22,9 +24,11 @@ import { TestService } from '../test/test.service';
     }),
     SequelizeModule.forFeature([UserEntity]),
     UserTestModule,
+    PvkModule,
   ],
   controllers: [UserController],
   providers: [
+    PvkService,
     UserService,
     UserTestService,
     TestService,
@@ -34,6 +38,7 @@ import { TestService } from '../test/test.service';
     JwtStrategy,
   ],
   exports: [
+    PvkModule,
     UserService,
     UserTestModule,
     BcryptUtil,

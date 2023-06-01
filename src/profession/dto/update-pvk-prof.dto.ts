@@ -1,5 +1,6 @@
-import { IsNumber } from 'class-validator';
+import { IsNumber, ValidateNested } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 
 export class PvkProfDto {
   @IsNumber(
@@ -30,13 +31,11 @@ export class PvkProfDto {
 }
 
 export class UpdatePvkProfDto {
-  @IsNumber(
-    {},
-    {
-      message: 'pvk must be array of PvkProfDto',
-      each: true,
-    },
-  )
+  @ValidateNested({
+    message: 'pvk must be array of PvkProfDto',
+    each: true,
+  })
+  @Type(() => PvkProfDto)
   @ApiProperty({
     type: PvkProfDto,
     isArray: true,

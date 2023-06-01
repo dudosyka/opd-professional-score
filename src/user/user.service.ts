@@ -13,16 +13,20 @@ import { PvkEntity } from '../pvk/entities/pvk.entity';
 import { EvaluationCriteriaEntity } from '../pvk/entities/evaluation.criteria.entity';
 import { ParamEntity } from '../param/entities/param.entity';
 import { TestEntity } from '../test/entities/test.entity';
-import { MlInputDto } from './dto/ml-input.dto';
+import { AnswerDto, MlInputDto } from './dto/ml-input.dto';
 import axios from 'axios';
 import { EvaluationCriteriaParamsEntity } from '../pvk/entities/evaluation.criteria.params.entity';
 import { PvkEvaluationCriteriaEntity } from '../pvk/entities/pvk.evaluation.criteria.entity';
+import { PvkService } from '../pvk/pvk.service';
+import { ProfessionEntity } from '../profession/entities/profession.entity';
+import { ProfessionPvkEntity } from '../profession/entities/profession.pvk.entity';
 
 @Injectable()
 export class UserService {
   constructor(
     private userTestService: UserTestService,
     private testService: TestService,
+    private pvkService: PvkService,
     @Inject(BcryptUtil) private bcryptUtil: BcryptUtil,
     @Inject(JwtUtil) private jwtUtil: JwtUtil,
   ) {}
@@ -153,7 +157,7 @@ export class UserService {
 
   async rate(
     userId: number,
-    answer: number[],
+    answer: AnswerDto[],
   ): Promise<OutputUserRateProfileDto> {
     const userParamsAverage = {};
 
@@ -188,6 +192,15 @@ export class UserService {
     });
 
     const pvk = await PvkEntity.findAll({
+      where: {
+        ...(answer.length
+          ? {
+              id: {
+                [Op.in]: answer.map((el) => el.pvkId),
+              },
+            }
+          : {}),
+      },
       include: [
         {
           model: EvaluationCriteriaEntity,
@@ -204,6 +217,7 @@ export class UserService {
         input: [],
         hiddenMatrix: [],
         outputMatrix: [],
+        calculationLayers: [],
         answer: [1],
         learnEpoch: 1,
       };
@@ -267,12 +281,13 @@ export class UserService {
         input: el.input,
         hiddenMatrix: el.hiddenMatrix.map((m) => m.map((k) => k.weight)),
         outputMatrix: el.outputMatrix.map((m) => m.map((k) => k.weight)),
+        calculationLayers: [],
         learnEpoch: answer.length > 0 ? 20 : 0,
-        answer,
+        answer: answer.map((el) => el.value),
       };
     });
 
-    const output: OutputUserRateProfileDto = { pvk: [] };
+    const output: OutputUserRateProfileDto = { pvk: [], prof: [] };
     console.log(JSON.stringify({ input: data }));
     return await axios
       .post(
@@ -280,10 +295,18 @@ export class UserService {
         { input: data },
         { headers: { 'Content-Type': 'application/json' } },
       )
-      .then((el) => {
+      .then(async (el) => {
         const i = 0;
+        console.log(el.data);
         el.data.forEach((el) => {
           const item = mlInput[i];
+          if (!el.hiddenMatrix) {
+            output.pvk.push({
+              pvk: this.pvkService.modelOutputProcessor(pvk[i]),
+              value: el.pvk[0],
+            });
+            return;
+          }
           item.hiddenMatrix.forEach((row, indexR) => {
             row.forEach((col, indexC) => {
               EvaluationCriteriaParamsEntity.update(
@@ -317,17 +340,41 @@ export class UserService {
 
           console.log(el);
           console.log(el.pvk[0]);
-          output.pvk.push(el.pvk[0]);
-          // console.log(el);
-          // console.log(
-          //   'Hidden matrix: ',
-          //   el.hiddenMatrix.map((m) => m),
-          // );
-          // console.log(
-          //   'Output matrix: ',
-          //   el.outputMatrix.map((m) => m),
-          // );
+          output.pvk.push({
+            pvk: this.pvkService.modelOutputProcessor(pvk[i]),
+            value: el.pvk[0],
+          });
         });
+
+        const professions = await ProfessionEntity.findAll({
+          include: [PvkEntity],
+        });
+
+        const personPvk = {};
+        output.pvk.forEach((el) => (personPvk[el.pvk.id] = el.value));
+        const profAvailable = [];
+        professions.forEach((prof) => {
+          let isAvailable = 0;
+          prof.pvk.forEach((pvk) => {
+            if (Object.keys(personPvk).includes(String(pvk.id))) {
+              isAvailable +=
+                pvk.dataValues.ProfessionPvkEntity.weight * personPvk[pvk.id];
+            }
+          });
+          isAvailable /= prof.pvk.length;
+          if (isAvailable >= 0.05) {
+            profAvailable.push({
+              prof: {
+                name: prof.name,
+                id: prof.id,
+              },
+              value: isAvailable * 100,
+            });
+          }
+        });
+
+        output.prof = profAvailable;
+
         return output;
       });
   }

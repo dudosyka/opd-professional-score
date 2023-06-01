@@ -163,22 +163,22 @@ export class UserController {
     return this.userService.remove(+id);
   }
 
-  // @UseGuards(JwtAuthGuard)
-  // @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiTags('Rate profile')
-  @Get('/profile/rate/:userId')
+  @Get('/profile/rate')
   @ApiOkResponse({
     description: 'The resource was returned successfully',
     type: OutputUserDto,
   })
   @ApiNotFoundResponse({ description: 'User not found' })
   @ApiBadRequestResponse({ description: 'Validation error' })
-  rateProfile(@Param('userId') id: string): Promise<OutputUserRateProfileDto> {
-    return this.userService.rate(+id, []);
+  rateProfile(@Req() req): Promise<OutputUserRateProfileDto> {
+    return this.userService.rate(+req.user.id, []);
   }
 
-  // @UseGuards(JwtAuthGuard)
-  // @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiTags('Rate profile')
   @Post('/profile/rate/:userId')
   @ApiOkResponse({
