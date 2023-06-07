@@ -7,7 +7,7 @@ export class AppController {
   async load() {
     const data = await UserTestEntity.findAll({});
 
-    data.map((el) => {
+    data.forEach((el) => {
       console.log(el.result);
       const fails = el.result.points.filter((el) => el == 0).length;
       // console.log(fails);

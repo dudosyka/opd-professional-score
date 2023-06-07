@@ -92,16 +92,15 @@ export class UserTestService {
     });
 
     return models.map((el) => {
+      const result = JSON.parse(el.result);
       return {
         id: el.id,
         user_name: el.user.name,
-        avg: el.result.avg,
+        avg: result.avg,
         additional: {
-          ...el.result.additional,
-          avg: el.result.avg,
+          ...result.additional,
+          avg: result.avg,
         },
-        // avg: JSON.parse(el.result).avg,
-        // additional: JSON.parse(el.result).additional,
         date: el.createdAt,
         user_id: el.user.id,
         user_age: el.user.calculateAge(),
