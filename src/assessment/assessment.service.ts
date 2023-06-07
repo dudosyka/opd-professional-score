@@ -83,7 +83,7 @@ export class AssessmentService {
     models: AssessmentEntity[],
   ): OutputAssessmentDto[] {
     return models.map((el) => {
-      console.log(el);
+      // console.log(el);
       return {
         assessment: {
           id: el.id,

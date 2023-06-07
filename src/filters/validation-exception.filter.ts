@@ -12,7 +12,7 @@ export class ValidationExceptionFilter
   implements ExceptionFilter
 {
   private formatObject(key, value) {
-    console.log(key);
+    // console.log(key);
     const arrKey = key.split('.');
     if (arrKey.length == 1) return { [key]: value };
     else {

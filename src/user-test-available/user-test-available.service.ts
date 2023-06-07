@@ -159,7 +159,7 @@ export class UserTestAvailableService {
             },
           )
             .then((r) => {
-              console.log(r);
+              // console.log(r);
             })
             .catch(() => {
               throw new ModelNotFoundException(

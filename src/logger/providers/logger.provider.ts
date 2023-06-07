@@ -9,7 +9,7 @@ export class LoggerProvider {
 
   async log(error: ErrorCreateDto): Promise<void> {
     LoggerModel.create(error).catch((err) => {
-      console.log(err);
+      // console.log(err);
     });
   }
 

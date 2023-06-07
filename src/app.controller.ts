@@ -8,7 +8,7 @@ export class AppController {
     const data = await UserTestEntity.findAll({});
 
     data.forEach((el) => {
-      console.log(el.result);
+      // console.log(el.result);
       const fails = el.result.points.filter((el) => el == 0).length;
       // console.log(fails);
       // el.result.addition = {

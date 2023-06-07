@@ -19,7 +19,6 @@ import { EvaluationCriteriaParamsEntity } from '../pvk/entities/evaluation.crite
 import { PvkEvaluationCriteriaEntity } from '../pvk/entities/pvk.evaluation.criteria.entity';
 import { PvkService } from '../pvk/pvk.service';
 import { ProfessionEntity } from '../profession/entities/profession.entity';
-import { ProfessionPvkEntity } from '../profession/entities/profession.pvk.entity';
 
 @Injectable()
 export class UserService {
@@ -173,9 +172,9 @@ export class UserService {
           throw new Error('Not enough results');
         }
 
-        console.log(`Test_id: ${el.id}: `, results);
+        // console.log(`Test_id: ${el.id}: `, results);
 
-        el.params.map((param, index) => {
+        el.params.forEach((param, index) => {
           userParamsAverage[parseInt(param.id.toString())] = {
             average: Math.round(
               results
@@ -196,7 +195,7 @@ export class UserService {
       throw err;
     });
 
-    console.log('USER PARAM AVERAGE', userParamsAverage);
+    // console.log('USER PARAM AVERAGE', userParamsAverage);
 
     const pvk = await PvkEntity.findAll({
       where: {
@@ -274,18 +273,18 @@ export class UserService {
     });
 
     const data: MlInputDto[] = mlInput.map((el) => {
-      console.log('Input: ', el.input);
+      // console.log('Input: ', el.input);
       el.hiddenMatrix = el.hiddenMatrix.map((item) =>
         item.sort((a, b) => a.paramId - b.paramId),
       );
-      console.log(
-        'Hidden matrix: ',
-        el.hiddenMatrix.map((m) => m),
-      );
-      console.log(
-        'Output matrix: ',
-        el.outputMatrix.map((m) => m),
-      );
+      // console.log(
+      //   'Hidden matrix: ',
+      //   el.hiddenMatrix.map((m) => m),
+      // );
+      // console.log(
+      //   'Output matrix: ',
+      //   el.outputMatrix.map((m) => m),
+      // );
       return {
         input: el.input,
         hiddenMatrix: el.hiddenMatrix.map((m) => m.map((k) => k.weight)),
@@ -297,7 +296,7 @@ export class UserService {
     });
 
     const output: OutputUserRateProfileDto = { pvk: [], prof: [] };
-    console.log(JSON.stringify({ input: data }));
+    // console.log(JSON.stringify({ input: data }));
     return await axios
       .post(
         'http://localhost:8082/',
@@ -305,11 +304,13 @@ export class UserService {
         { headers: { 'Content-Type': 'application/json' } },
       )
       .then(async (el) => {
-        const i = 0;
-        console.log(el.data);
+        let i = -1;
+        // console.log(el.data);
         el.data.forEach((el) => {
+          i++;
           const item = mlInput[i];
           if (!el.hiddenMatrix) {
+            // console.log(i, pvk[i]);
             output.pvk.push({
               pvk: this.pvkService.modelOutputProcessor(pvk[i]),
               value: el.pvk[0],
@@ -347,8 +348,8 @@ export class UserService {
             });
           });
 
-          console.log(el);
-          console.log(el.pvk[0]);
+          // console.log(el);
+          // console.log(el.pvk[0]);
           output.pvk.push({
             pvk: this.pvkService.modelOutputProcessor(pvk[i]),
             value: el.pvk[0],
