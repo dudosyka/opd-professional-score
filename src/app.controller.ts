@@ -5,13 +5,10 @@ import { UserTestEntity } from './user-test/entities/user-test.entity';
 export class AppController {
   @Get('app')
   async load() {
-    const data = await UserTestEntity.findAll({
-      where: {
-        test_id: [1, 2, 3, 4, 5, 8, 11, 12],
-      },
-    });
+    const data = await UserTestEntity.findAll({});
 
     data.map((el) => {
+      console.log(el.result);
       const fails = el.result.points.filter((el) => el == 0).length;
       // console.log(fails);
       // el.result.addition = {
@@ -21,7 +18,16 @@ export class AppController {
         {
           result: {
             ...el.result,
-            addition: { fails },
+            additional: {
+              attempts: el.result.points.length,
+              avTimeOnMove: el.result.avg,
+              timeOnTest: el.result.points.reduce((a, b) => a + b),
+              fails,
+            },
+            timeOnTest: el.result.points.reduce((a, b) => a + b),
+            attempts: el.result.points.length,
+            avTimeOnMove: el.result.avg,
+            fails,
           },
         },
         { where: { id: el.id } },

@@ -178,8 +178,13 @@ export class UserService {
         el.params.map((param, index) => {
           userParamsAverage[parseInt(param.id.toString())] = {
             average: Math.round(
-              results.map((res) => res[param.key]).reduce((a, b) => a + b) /
-                results.length,
+              results
+                .map((res) =>
+                  res[param.key]
+                    ? res[param.key]
+                    : res['additional'][param.key],
+                )
+                .reduce((a, b) => a + b) / results.length,
             ),
             direction: param.direction,
             slice: param.slice,
@@ -190,6 +195,8 @@ export class UserService {
     ).catch((err) => {
       throw err;
     });
+
+    console.log('USER PARAM AVERAGE', userParamsAverage);
 
     const pvk = await PvkEntity.findAll({
       where: {
@@ -238,6 +245,7 @@ export class UserService {
           }
           return Math.abs(a - param.average / param.slice);
         });
+
       const hiddenMatrix = [];
       const outputMatrix = [];
       outputMatrix.push([]);
