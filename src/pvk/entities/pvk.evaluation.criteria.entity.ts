@@ -2,6 +2,7 @@ import {
   AutoIncrement,
   BelongsTo,
   Column,
+  DataType,
   Model,
   PrimaryKey,
   Table,
@@ -28,6 +29,8 @@ export class PvkEvaluationCriteriaEntity extends Model {
   @BelongsTo(() => EvaluationCriteriaEntity, 'criteria_id')
   criteria: EvaluationCriteriaEntity;
 
-  @Column
+  @Column({
+    type: DataType.FLOAT,
+  })
   weight: number;
 }

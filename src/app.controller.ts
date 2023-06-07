@@ -1,19 +1,41 @@
 import { Controller, Get } from '@nestjs/common';
-import readXlsxFile from 'read-excel-file/node';
-import { PvkEntity } from './pvk/entities/pvk.entity';
+import { UserTestEntity } from './user-test/entities/user-test.entity';
 
 @Controller()
 export class AppController {
   @Get('app')
-  load() {
-    readXlsxFile(process.cwd() + '/' + 'excel.xlsx').then((rows) => {
-      PvkEntity.bulkCreate(
-        rows.map((item) => ({
-          name: item[1],
-          description: item[2],
-        })),
+  async load() {
+    const data = await UserTestEntity.findAll({
+      where: {
+        test_id: [1, 2, 3, 4, 5, 8, 11, 12],
+      },
+    });
+
+    data.map((el) => {
+      const fails = el.result.points.filter((el) => el == 0).length;
+      // console.log(fails);
+      // el.result.addition = {
+      //   fails,
+      // };
+      el.update(
+        {
+          result: {
+            ...el.result,
+            addition: { fails },
+          },
+        },
+        { where: { id: el.id } },
       );
     });
+
+    // readXlsxFile(process.cwd() + '/' + 'excel.xlsx').then((rows) => {
+    //   PvkEntity.bulkCreate(
+    //     rows.map((item) => ({
+    //       name: item[1],
+    //       description: item[2],
+    //     })),
+    //   );
+    // });
   }
 }
 

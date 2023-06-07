@@ -2,6 +2,7 @@ import {
   AutoIncrement,
   BelongsTo,
   Column,
+  DataType,
   Model,
   PrimaryKey,
   Table,
@@ -28,6 +29,8 @@ export class ProfessionPvkEntity extends Model {
   @BelongsTo(() => PvkEntity, 'pvk_id')
   pvk: PvkEntity;
 
-  @Column
+  @Column({
+    type: DataType.FLOAT,
+  })
   weight: number;
 }
