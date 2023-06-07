@@ -210,7 +210,7 @@ export class UserService {
     });
 
     const mlInput = [];
-    let j = 0;
+    const j = 0;
     pvk.forEach((el) => {
       const mlInputItem = {
         pvkId: el.id,
@@ -242,6 +242,7 @@ export class UserService {
       const outputMatrix = [];
       outputMatrix.push([]);
       let i = 0;
+      let j = 0;
       el.criteria.forEach((criteria) => {
         hiddenMatrix.push([]);
         criteria.params.forEach((param) => {
