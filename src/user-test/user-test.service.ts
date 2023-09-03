@@ -92,8 +92,8 @@ export class UserTestService {
     });
 
     return models.map((el) => {
-      const result = el.result;
-      // const result = JSON.parse(el.result);
+      // const result = el.result;
+      const result = JSON.parse(el.result);
       return {
         id: el.id,
         user_name: el.user.name,
